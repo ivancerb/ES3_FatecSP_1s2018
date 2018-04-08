@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>br.fatecsp.ads</groupId>
-	<artifactId>DominoWebService</artifactId>
+	<artifactId>domino-ws-es3</artifactId>
 	<version>0.0.1</version>
 	<packaging>war</packaging>
-	<name>DominoWebService</name>
+	<name>domino-ws-es3</name>
 	<url>http://maven.apache.org</url>
 	<repositories>
 		<repository>
@@ -18,7 +18,7 @@
 		</repository>
 	</repositories> 
   	<build>
-  		<finalName>DominoWebService</finalName>
+  		<finalName>domino-ws-es3</finalName>
 	    <sourceDirectory>src</sourceDirectory>
 		<resources>
 		  <resource>
@@ -29,8 +29,13 @@
 		  </resource>
 		</resources>
 	    <plugins>
-		    <plugin>
-		        <artifactId>maven-war-plugin</artifactId>
+		<plugin>
+       			 <groupId>com.heroku.sdk</groupId>
+        		<artifactId>heroku-maven-plugin</artifactId>
+        		<version>2.0.3</version>
+		</plugin>
+		<plugin>
+			<artifactId>maven-war-plugin</artifactId>
 		        <version>2.6</version>
 		        <configuration>
 			        <warSourceDirectory>WebContent</warSourceDirectory>

@@ -9,6 +9,7 @@ public class Board {
 
 	HashSet<Piece> player1Pieces = new HashSet<Piece>();
 	HashSet<Piece> player2Pieces = new HashSet<Piece>();
+	ArrayList<Piece> remainingPieces = new ArrayList<Piece>();
 	int extremeA; //value of one of the extremes of the game
 	int extremeB; //value of another of the extremes of the game
 	
@@ -84,27 +85,33 @@ public class Board {
 	 * @param player2Pieces
 	 */
 	private void assignPieces(HashSet<Piece> player1Piece, HashSet<Piece> player2Pieces) {
-		Piece[] allPiecesList = generateBoardPieces();
+		List<Piece> allPiecesList = generateBoardPieces();
 		boolean[] usedPieceList = generateUsedPieceList();
-		List<Integer> numerosSorteio = new ArrayList<Integer>();
-		for(int i=0; i<28; i++) { //temos 28 pecas, que estao ordenadas na lista
-			numerosSorteio.add(new Integer(i));
-		}
 		int i=0; 
 		//PLAYER 1
-		while(i<14) { //vamos sortear 14 pecas para o jogador1
+		while(i<7) { //vamos sortear 7 pecas para o jogador 1
 			Random random = new Random();
 			int numeroSorteado = random.nextInt(28); //sorteia valores de 0 a 27
 			if(!usedPieceList[numeroSorteado]){
-				player1Piece.add(allPiecesList[numeroSorteado]); //adiciona peca sorteada à lista do player1
-				usedPieceList[numeroSorteado]=true; //remove o numero sorteado da lista de pecas possiveis
+				player1Piece.add(allPiecesList.get(numeroSorteado)); //adiciona peca sorteada à lista do player1
+				usedPieceList[numeroSorteado]=true; //marca o numero sorteado como indisponivel
 				i++; //increment number of pieces player 1 already have
 			}
 		}
 		//PLAYER 2
-		for(int j=0;j<28;j++){ //vamos atribuir as 14 pecas restantes para o jogador2
+		while(i<14) { //vamos sortear 7 pecas para o jogador2
+			Random random = new Random();
+			int numeroSorteado = random.nextInt(28); //sorteia valores de 0 a 27
+			if(!usedPieceList[numeroSorteado]){
+				player1Piece.add(allPiecesList.get(numeroSorteado)); //adiciona peca sorteada à lista do player2
+				usedPieceList[numeroSorteado]=true; //marca o numero sorteado como indisponivel
+				i++; //increment number of pieces player 1 already have
+			}
+		}
+		//Peças restantes vao para o monte - onde podem ser compradas.
+		for(int j=0;j<28;j++){ //vamos atribuir as 14 pecas restantes para o monte
 			if(!usedPieceList[j]) {
-				player1Piece.add(allPiecesList[j]);
+				this.remainingPieces.add(allPiecesList.get(j));
 			}
 		}
 	}
@@ -113,7 +120,7 @@ public class Board {
 	 * Generate all board domino pieces
 	 * @return
 	 */
-	private Piece[] generateBoardPieces(){
+	private List<Piece> generateBoardPieces(){
 		List<Piece> allPiecesList = new ArrayList<Piece>();
 		for(int i=0; i<=6; i++) {
 			for(int j=0; j<=6; j++) {
@@ -121,13 +128,7 @@ public class Board {
 				allPiecesList.add(piece);
 			}
 		}
-		//TODO try to redo in a decent way :) 
-		Piece[] piecesArray = new Piece[28];
-		int j;
-		for(j=0; j<28; j++) {
-			piecesArray[j] = allPiecesList.get(j);
-		}
-		return piecesArray;
+		return allPiecesList;
 	}
 	
 	private boolean[] generateUsedPieceList() {

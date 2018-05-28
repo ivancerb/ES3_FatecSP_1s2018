@@ -23,6 +23,17 @@ public class Game {
 		return isWinner(playerId);
 	}
 	
+	public Piece buyPiece(int playerId) {
+		if(this.board.remainingPieces.size()==0) return null;
+		Piece piece = this.board.remainingPieces.get(0);
+		if(playerId==this.player1.getId()) {
+			this.board.player1Pieces.add(piece);
+		}else if (playerId==this.player2.getId()) {
+			this.board.player2Pieces.add(piece);
+		}
+		return piece;
+	}
+	
 	//TODO complement with other criteria and logic
 	public boolean isWinner(int playerId) {
 		if(playerId == player1.getId()) {

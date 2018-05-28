@@ -1,6 +1,7 @@
 package br.fatecsp.es3.domino.ws.controller;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,6 +10,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.fatecsp.es3.domino.ws.entities.Game;
 import br.fatecsp.es3.domino.ws.entities.Piece;
@@ -52,6 +56,32 @@ public class DominoController {
 	}
 	
 	/**
+	 * @param player1
+	 * @param player2
+	 * @param request
+	 * @return the game's id, that will be necessary for all the game transactions
+	 */
+	@RequestMapping("/getpieces/{id-game}/{id-player}")
+	public @ResponseBody String getPieces(@PathVariable int gameId, @PathVariable("id-player") int playerId, 
+			HttpServletRequest request){
+		HashSet<Piece> playerPieces = new HashSet<Piece>();
+		Game game = gamesMap.get(gameId);
+		if(playerId == game.getPlayer1().getId()) {
+			playerPieces = game.getBoard().getPlayer1Pieces();
+		}else if(playerId == game.getPlayer2().getId()) {
+			playerPieces = game.getBoard().getPlayer2Pieces();
+		}
+		ObjectMapper objectMapper = new ObjectMapper();
+		String json="";
+		try {
+			json = objectMapper.writeValueAsString(playerPieces);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return json;
+	}
+	
+	/**
 	 * @param gameId
 	 * @param playerId
 	 * @param extremeSide
@@ -78,7 +108,7 @@ public class DominoController {
 	 * @param request
 	 * @return the piece that was bought from the remaining pieces stack
 	 */
-	@RequestMapping("/play/{id-game}/{id-player}")
+	@RequestMapping("/buy/{id-game}/{id-player}")
 	public @ResponseBody Piece buy(@PathVariable("id-game") int gameId,
 			@PathVariable("id-player") int playerId,
 			HttpServletRequest request){

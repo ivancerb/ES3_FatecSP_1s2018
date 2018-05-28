@@ -62,7 +62,7 @@ public class DominoController {
 	 * @return the game's id, that will be necessary for all the game transactions
 	 */
 	@RequestMapping("/getpieces/{id-game}/{id-player}")
-	public @ResponseBody String getPieces(@PathVariable int gameId, @PathVariable("id-player") int playerId, 
+	public @ResponseBody String getPieces(@PathVariable("id-game") int gameId, @PathVariable("id-player") int playerId, 
 			HttpServletRequest request){
 		HashSet<Piece> playerPieces = new HashSet<Piece>();
 		Game game = gamesMap.get(gameId);

@@ -2,11 +2,12 @@ package br.fatecsp.es3.domino.ws.entities;
 
 public class Game {
 	
-	int id;
-	Player player1;
-	Player player2;
-	Board  board; 
-	int lastOneToPlayId;
+	private int id;
+	private Player player1;
+	private Player player2;
+	private Board  board; 
+	private int lastOneToPlayId;
+	private boolean isFirstMove = true;
 	
 	public Game(int id, Player player1, Player player2) {
 		this.id = id;
@@ -17,10 +18,22 @@ public class Game {
 	}
 		
 	public boolean play(int playerId, String extremeSide, int pieceDeadEnd, int pieceExtreme) {
-		this.removePiece(playerId, pieceDeadEnd, pieceExtreme);
+		//only allows to play if the extreme matches 
+		if(extremeSide.equals("A")) {
+			if (pieceExtreme != board.getExtremeA()) {
+				return false;
+			}
+		}
+		if(extremeSide.equals("B")) {
+			if (pieceExtreme != board.getExtremeB()) { 
+				return false;
+			}
+		}
+		//remove the piece from the pieces' list
+		this.removePiece(playerId, pieceDeadEnd, pieceExtreme);	
 		this.setLastOneToPlayId(playerId);
-		this.updateExtreme(extremeSide, pieceExtreme);
-		return isWinner(playerId);
+		this.updateExtremes(extremeSide, pieceExtreme, pieceDeadEnd); 
+		return true;
 	}
 	
 	public Piece buyPiece(int playerId) {
@@ -34,7 +47,6 @@ public class Game {
 		return piece;
 	}
 	
-	//TODO complement with other criteria and logic
 	public boolean isWinner(int playerId) {
 		if(playerId == player1.getId()) {
 			return this.board.player1Pieces.isEmpty();
@@ -54,11 +66,18 @@ public class Game {
 		}
 	}
 	
-	private void updateExtreme(String extremeSide, int valueExtreme) {
-		if(extremeSide.equals("A")) {
+	private void updateExtremes(String extremeSide, int valueExtreme, int valueDeadEnd) {
+		if(this.isFirstMove) { 
+			isFirstMove = false; 
 			this.board.setExtremeA(valueExtreme);
-		}else {
-			this.board.setExtremeB(valueExtreme);
+			this.board.setExtremeB(valueDeadEnd);
+		}
+		else {
+			if(extremeSide.equals("A")) {
+				this.board.setExtremeA(valueExtreme);
+			}else {
+				this.board.setExtremeB(valueExtreme);
+			}
 		}
 	}
 	
@@ -136,5 +155,8 @@ public class Game {
 	}
 	public void setLastOneToPlayId(int lastOneToPlayId) {
 		this.lastOneToPlayId = lastOneToPlayId;
-	} 	
+	}
+	public boolean isFirstMove() {
+		return isFirstMove;
+	}
 }

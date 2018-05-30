@@ -51,6 +51,7 @@ public class DominoController {
 			@PathVariable("id-player2") int player2,
 			HttpServletRequest request){
 		Game game = new Game(NEXTGAMEID, playersMap.get(player1), playersMap.get(player2));
+		this.gamesMap.put(game.getId(), game);
 		NEXTGAMEID++;
 		return game.getId();
 	}
@@ -61,7 +62,7 @@ public class DominoController {
 	 * @param request
 	 * @return the game's id, that will be necessary for all the game transactions
 	 */
-	@RequestMapping("/getpieces/{id-game}/{id-player}")
+	@RequestMapping("/get-pieces/{id-game}/{id-player}")
 	public @ResponseBody String getPieces(@PathVariable("id-game") int gameId, @PathVariable("id-player") int playerId, 
 			HttpServletRequest request){
 		HashSet<Piece> playerPieces = new HashSet<Piece>();
@@ -98,22 +99,44 @@ public class DominoController {
 			@PathVariable("value-extreme") int valueExtreme,
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
-		game.play(playerId, extremeSide, valueDeadEnd, valueExtreme);
-		return game.isWinner(playerId);
+		return game.play(playerId, extremeSide, valueDeadEnd, valueExtreme);
 	}
 	
 	/**
 	 * @param gameId
 	 * @param playerId
 	 * @param request
-	 * @return the piece that was bought from the remaining pieces stack
+	 * @return
 	 */
 	@RequestMapping("/buy/{id-game}/{id-player}")
-	public @ResponseBody Piece buy(@PathVariable("id-game") int gameId,
+	public @ResponseBody String buy(@PathVariable("id-game") int gameId,
 			@PathVariable("id-player") int playerId,
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
-		return game.buyPiece(playerId);
+		Piece piece = game.buyPiece(playerId);
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		String json="";
+		try {
+			json = objectMapper.writeValueAsString(piece);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return json;
 	}
 	
+	/**
+	 * @param gameId
+	 * @param playerId
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping("/is-winner/{id-game}/{id-player}")
+	public @ResponseBody boolean isWinner(@PathVariable("id-game") int gameId,
+			@PathVariable("id-player") int playerId,
+			HttpServletRequest request){
+		Game game = gamesMap.get(gameId);
+		return game.isWinner(playerId);
+	}
+
 }

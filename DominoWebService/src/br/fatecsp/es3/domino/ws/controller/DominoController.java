@@ -26,7 +26,7 @@ public class DominoController {
 	private static int NEXTGAMEID = 1;
 	private static Map<Integer,Player> playersMap = new HashMap<Integer,Player>();
 	private static Map<Integer,Game> gamesMap = new HashMap<Integer,Game>();
-
+	private static Map<Integer,Player> freePlayersMap= new HashMap<Integer,Player>();
 
 	/**
 	 * @param request
@@ -36,8 +36,28 @@ public class DominoController {
 	public @ResponseBody int connectUserToGame(HttpServletRequest request){
 		Player player = new Player(NEXTPLAYERID); 
 		playersMap.put(new Integer(NEXTPLAYERID), player);
+		freePlayersMap.put(NEXTPLAYERID, player);
 		NEXTPLAYERID++;
 		return player.getId();
+	}
+	
+	/**
+	 * 
+	 * @param gameId
+	 * @param playerId
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping("/get-free-players/")
+	public @ResponseBody String getFreePlayers(HttpServletRequest request){
+		ObjectMapper objectMapper = new ObjectMapper();
+		String json="";
+		try {
+			json = objectMapper.writeValueAsString(freePlayersMap);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return json;
 	}
 	
 	/**
@@ -51,7 +71,9 @@ public class DominoController {
 			@PathVariable("id-player2") int player2,
 			HttpServletRequest request){
 		Game game = new Game(NEXTGAMEID, playersMap.get(player1), playersMap.get(player2));
-		this.gamesMap.put(game.getId(), game);
+		gamesMap.put(game.getId(), game);
+		freePlayersMap.remove(player1);
+		freePlayersMap.remove(player2);
 		NEXTGAMEID++;
 		return game.getId();
 	}
@@ -60,7 +82,6 @@ public class DominoController {
 	 * @param player1
 	 * @param player2
 	 * @param request
-	 * @return the game's id, that will be necessary for all the game transactions
 	 */
 	@RequestMapping("/get-pieces/{id-game}/{id-player}")
 	public @ResponseBody String getPieces(@PathVariable("id-game") int gameId, @PathVariable("id-player") int playerId, 

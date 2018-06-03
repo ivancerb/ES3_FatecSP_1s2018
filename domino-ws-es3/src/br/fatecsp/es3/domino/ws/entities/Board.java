@@ -104,7 +104,7 @@ public class Board {
 		//PLAYER 2
 		for(int j=0;j<28;j++){ //vamos atribuir as 14 pecas restantes para o jogador2
 			if(!usedPieceList[j]) {
-				player1Piece.add(allPiecesList[j]);
+				player2Pieces.add(allPiecesList[j]);
 			}
 		}
 	}
@@ -121,12 +121,11 @@ public class Board {
 				allPiecesList.add(piece);
 			}
 		}
-		//TODO try to redo in a decent way :) 
+		
+		List<Piece> fullPiecesList = allPiecesList.subList(0, 27);
 		Piece[] piecesArray = new Piece[28];
-		int j;
-		for(j=0; j<28; j++) {
-			piecesArray[j] = allPiecesList.get(j);
-		}
+		piecesArray = fullPiecesList.toArray(piecesArray);
+		
 		return piecesArray;
 	}
 	

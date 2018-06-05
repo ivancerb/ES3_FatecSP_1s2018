@@ -1,5 +1,7 @@
 package br.fatecsp.es3.domino.ws.entities;
 
+import java.util.Random;
+
 public class Game {
 	
 	private int id;
@@ -8,6 +10,7 @@ public class Game {
 	private Board  board; 
 	private int lastOneToPlayId;
 	private boolean isFirstMove = true;
+	private Random randomGenerator;
 	
 	public Game(int id, Player player1, Player player2) {
 		this.id = id;
@@ -15,6 +18,7 @@ public class Game {
 		this.player2 = player2;
 		this.board = new Board();
 		this.lastOneToPlayId = player1.getId();
+		this.randomGenerator = new Random();
 	}
 		
 	public boolean play(int playerId, String extremeSide, int pieceDeadEnd, int pieceExtreme) {
@@ -37,13 +41,18 @@ public class Game {
 	}
 	
 	public Piece buyPiece(int playerId) {
-		if(this.board.remainingPieces.size()==0) return null;
-		Piece piece = this.board.remainingPieces.get(0);
+		if(this.board.remainingPieces.isEmpty()) return null;
+		
+		int position = randomGenerator.nextInt(this.board.remainingPieces.size());
+		Piece piece = this.board.remainingPieces.get(position);
+		this.board.remainingPieces.remove(position);
+		
 		if(playerId==this.player1.getId()) {
 			this.board.player1Pieces.add(piece);
 		}else if (playerId==this.player2.getId()) {
 			this.board.player2Pieces.add(piece);
 		}
+		
 		return piece;
 	}
 	

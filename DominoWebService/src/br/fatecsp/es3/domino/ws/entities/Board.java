@@ -87,10 +87,11 @@ public class Board {
 	private void assignPieces(HashSet<Piece> player1Piece, HashSet<Piece> player2Pieces) {
 		List<Piece> allPiecesList = generateBoardPieces();
 		boolean[] usedPieceList = generateUsedPieceList();
-		int i=0; 
+		int i=0;
+		Random random = new Random();
+		
 		//PLAYER 1
 		while(i<7) { //vamos sortear 7 pecas para o jogador 1
-			Random random = new Random();
 			int numeroSorteado = random.nextInt(28); //sorteia valores de 0 a 27
 			if(!usedPieceList[numeroSorteado]){
 				player1Piece.add(allPiecesList.get(numeroSorteado)); //adiciona peca sorteada à lista do player1
@@ -100,7 +101,6 @@ public class Board {
 		}
 		//PLAYER 2
 		while(i<14) { //vamos sortear 7 pecas para o jogador2
-			Random random = new Random();
 			int numeroSorteado = random.nextInt(28); //sorteia valores de 0 a 27
 			if(!usedPieceList[numeroSorteado]){
 				player2Pieces.add(allPiecesList.get(numeroSorteado)); //adiciona peca sorteada à lista do player2

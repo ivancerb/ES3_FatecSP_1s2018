@@ -103,9 +103,9 @@ public class Board {
 			Random random = new Random();
 			int numeroSorteado = random.nextInt(28); //sorteia valores de 0 a 27
 			if(!usedPieceList[numeroSorteado]){
-				player1Piece.add(allPiecesList.get(numeroSorteado)); //adiciona peca sorteada à lista do player2
+				player2Pieces.add(allPiecesList.get(numeroSorteado)); //adiciona peca sorteada à lista do player2
 				usedPieceList[numeroSorteado]=true; //marca o numero sorteado como indisponivel
-				i++; //increment number of pieces player 1 already have
+				i++; //increment number of pieces player 2 already have
 			}
 		}
 		//Peças restantes vao para o monte - onde podem ser compradas.

@@ -1,5 +1,7 @@
 package br.fatecsp.es3.domino.ws.entities;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Random;
 
 public class Game {
@@ -65,13 +67,24 @@ public class Game {
 		}
 	}
 	
+	private void removePieceFromHashSet(HashSet<Piece> pieces, Piece piece) {
+		Iterator<Piece> iterator = pieces.iterator();
+		while (iterator.hasNext()) {
+			Piece p = iterator.next();
+		    if (p.equals(piece)) {
+		        iterator.remove();
+		        break;
+		      }
+		}
+	}
+	
 	private void removePiece(int playerId, int valueDeadEnd, int valueExtreme) {
 		Piece piece = new Piece(valueDeadEnd, valueExtreme);
 		if(playerId == player1.getId()) {
-			this.board.player1Pieces.remove(piece);
+			this.removePieceFromHashSet(this.board.player1Pieces, piece);
 		}
 		else {
-			this.board.player2Pieces.remove(piece);
+			this.removePieceFromHashSet(this.board.player2Pieces, piece);
 		}
 	}
 	

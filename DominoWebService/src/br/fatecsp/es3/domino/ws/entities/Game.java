@@ -98,9 +98,9 @@ public class Game {
 		}
 		else {
 			if(extremeSide.equals("A")) {
-				this.board.setExtremeA(valueDeadEnd);
+				this.board.setExtremeA(valueExtreme);
 			}else {
-				this.board.setExtremeB(valueDeadEnd);
+				this.board.setExtremeB(valueExtreme);
 			}
 		}
 	}

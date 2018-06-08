@@ -24,15 +24,17 @@ public class Game {
 	}
 		
 	public boolean play(int playerId, String extremeSide, int pieceDeadEnd, int pieceExtreme) {
-		//only allows to play if the extreme matches 
-		if(extremeSide.equals("A")) {
-			if (pieceExtreme != board.getExtremeA()) {
-				return false;
+		if(!isFirstMove) {
+			//only allows to play if the extreme matches - if first move this is not verified
+			if(extremeSide.equals("A")) {
+				if (pieceExtreme != board.getExtremeA()) {
+					return false;
+				}
 			}
-		}
-		if(extremeSide.equals("B")) {
-			if (pieceExtreme != board.getExtremeB()) { 
-				return false;
+			if(extremeSide.equals("B")) {
+				if (pieceExtreme != board.getExtremeB()) { 
+					return false;
+				}
 			}
 		}
 		//remove the piece from the pieces' list

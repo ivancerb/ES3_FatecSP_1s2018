@@ -110,7 +110,7 @@ public class DominoController {
 	 * @param valueDeadEnd
 	 * @param valueExtreme
 	 * @param request
-	 * @return if the player is the winner of the game after this run or not
+	 * @return se a jogada foi bem sucedida
 	 */
 	@RequestMapping("/play/{id-game}/{id-player}/{extreme-side}/{value-dead-end}/{value-extreme}")
 	public @ResponseBody boolean play(@PathVariable("id-game") int gameId,

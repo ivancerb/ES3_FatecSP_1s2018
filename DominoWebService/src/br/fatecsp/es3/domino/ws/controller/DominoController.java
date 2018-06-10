@@ -112,12 +112,12 @@ public class DominoController {
 	 * @param request
 	 * @return se a jogada foi bem sucedida
 	 */
-	@RequestMapping("/play/{id-game}/{id-player}/{extreme-side}/{value-dead-end}/{value-extreme}")
+	@RequestMapping("/play/{id-game}/{id-player}/{value-dead-end}/{value-extreme}/{extreme-side}")
 	public @ResponseBody boolean play(@PathVariable("id-game") int gameId,
 			@PathVariable("id-player") int playerId,
-			@PathVariable("extreme-side") String extremeSide,
 			@PathVariable("value-dead-end") int valueDeadEnd,
 			@PathVariable("value-extreme") int valueExtreme,
+			@PathVariable("extreme-side") String extremeSide,
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
 		return game.play(playerId, extremeSide, valueDeadEnd, valueExtreme);

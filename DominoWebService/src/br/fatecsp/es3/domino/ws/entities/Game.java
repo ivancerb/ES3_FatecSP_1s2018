@@ -44,6 +44,17 @@ public class Game {
 		return true;
 	}
 	
+	public boolean canPlay(int playerId) {
+		if(!isFirstMove)
+		{
+			int lastPlayer = this.getLastOneToPlayId();
+			
+			return lastPlayer != playerId;
+		}
+		
+		return true;
+	}
+	
 	public Piece buyPiece(int playerId) {
 		if(this.board.remainingPieces.isEmpty()) return null;
 		

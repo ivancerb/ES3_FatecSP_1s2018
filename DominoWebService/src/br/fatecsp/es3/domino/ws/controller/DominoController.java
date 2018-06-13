@@ -27,7 +27,16 @@ public class DominoController {
 	private static Map<Integer,Player> playersMap = new HashMap<Integer,Player>();
 	private static Map<Integer,Game> gamesMap = new HashMap<Integer,Game>();
 	private static Map<Integer,Player> freePlayersMap= new HashMap<Integer,Player>();
-
+	
+	/**
+	 * @param player player object
+	 */
+	private void doConnectRoutine(Player player) {
+		playersMap.put(new Integer(NEXTPLAYERID), player);
+		freePlayersMap.put(NEXTPLAYERID, player);
+		NEXTPLAYERID++;
+	}
+	
 	/**
 	 * @param request
 	 * @return the player's id, that will be necessary for all the future transactions
@@ -35,9 +44,7 @@ public class DominoController {
 	@RequestMapping("/connect")
 	public @ResponseBody int connectUserToGame(HttpServletRequest request){
 		Player player = new Player(NEXTPLAYERID); 
-		playersMap.put(new Integer(NEXTPLAYERID), player);
-		freePlayersMap.put(NEXTPLAYERID, player);
-		NEXTPLAYERID++;
+		this.doConnectRoutine(player);
 		return player.getId();
 	}
 	
@@ -49,9 +56,7 @@ public class DominoController {
 	@RequestMapping("/connect/{name-player}")
 	public @ResponseBody int connectUserToGame(@PathVariable("name-player") String playerName, HttpServletRequest request){
 		Player player = new Player(NEXTPLAYERID, playerName); 
-		playersMap.put(new Integer(NEXTPLAYERID), player);
-		freePlayersMap.put(NEXTPLAYERID, player);
-		NEXTPLAYERID++;
+		this.doConnectRoutine(player);
 		return player.getId();
 	}
 	
@@ -66,9 +71,7 @@ public class DominoController {
 			@PathVariable("email-player") String playerEmail,
 			HttpServletRequest request){
 		Player player = new Player(NEXTPLAYERID, playerName, playerEmail); 
-		playersMap.put(new Integer(NEXTPLAYERID), player);
-		freePlayersMap.put(NEXTPLAYERID, player);
-		NEXTPLAYERID++;
+		this.doConnectRoutine(player);
 		return player.getId();
 	}
 	
@@ -152,6 +155,20 @@ public class DominoController {
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
 		return game.play(playerId, extremeSide, valueDeadEnd, valueExtreme);
+	}
+	
+	/**
+	 * @param gameId
+	 * @param playerId
+	 * @param request
+	 * @return se o jogador já pode jogar
+	 */
+	@RequestMapping("/can-play/{id-game}/{id-player}")
+	public @ResponseBody boolean canPlay(@PathVariable("id-game") int gameId,
+			@PathVariable("id-player") int playerId,
+			HttpServletRequest request){
+		Game game = gamesMap.get(gameId);
+		return game.canPlay(playerId);
 	}
 	
 	/**

@@ -45,11 +45,17 @@ public class Player {
 	}
 	
 	public Player(int id) {
-		this.id = id;
+		this.setId(id);
+	}
+	
+	public Player(int id, String name) {
+		this(id);
+		this.setName(name);
 	}
 	
 	public Player(int id, String name, String email) {
-		this.id = id;
+		this(id, name);
+		this.setEmail(email);
 	}
 	
 	public int getId() {

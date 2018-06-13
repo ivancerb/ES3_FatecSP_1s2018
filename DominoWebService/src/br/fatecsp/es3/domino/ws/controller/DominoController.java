@@ -42,6 +42,37 @@ public class DominoController {
 	}
 	
 	/**
+	 * @param playerName the player name
+	 * @param request
+	 * @return the player's id, that will be necessary for all the future transactions
+	 */
+	@RequestMapping("/connect/{name-player}")
+	public @ResponseBody int connectUserToGame(@PathVariable("name-player") String playerName, HttpServletRequest request){
+		Player player = new Player(NEXTPLAYERID, playerName); 
+		playersMap.put(new Integer(NEXTPLAYERID), player);
+		freePlayersMap.put(NEXTPLAYERID, player);
+		NEXTPLAYERID++;
+		return player.getId();
+	}
+	
+	/**
+	 * @param playerName the player name
+	 * @param playerEmail the player email address
+	 * @param request
+	 * @return the player's id, that will be necessary for all the future transactions
+	 */
+	@RequestMapping("/connect/{name-player}/{email-player}")
+	public @ResponseBody int connectUserToGame(@PathVariable("name-player") String playerName, 
+			@PathVariable("email-player") String playerEmail,
+			HttpServletRequest request){
+		Player player = new Player(NEXTPLAYERID, playerName, playerEmail); 
+		playersMap.put(new Integer(NEXTPLAYERID), player);
+		freePlayersMap.put(NEXTPLAYERID, player);
+		NEXTPLAYERID++;
+		return player.getId();
+	}
+	
+	/**
 	 * 
 	 * @param gameId
 	 * @param playerId

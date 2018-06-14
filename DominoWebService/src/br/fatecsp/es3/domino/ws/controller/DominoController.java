@@ -66,9 +66,9 @@ public class DominoController {
 	 * @param request
 	 * @return the player's id, that will be necessary for all the future transactions
 	 */
-	@RequestMapping("/connect/{name-player}/{email-player}")
-	public @ResponseBody int connectUserToGame(@PathVariable("name-player") String playerName, 
-			@PathVariable("email-player") String playerEmail,
+	@RequestMapping("/connect/{email-player}/{name-player}")
+	public @ResponseBody int connectUserToGame(@PathVariable("email-player") String playerEmail,
+			@PathVariable("name-player") String playerName,
 			HttpServletRequest request){
 		Player player = new Player(NEXTPLAYERID, playerName, playerEmail); 
 		this.doConnectRoutine(player);

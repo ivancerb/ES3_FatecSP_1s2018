@@ -3,8 +3,8 @@ package br.fatecsp.es3.domino.ws.entities;
 public class Player {
 	
 	int id;
-	String name;
-	String email;
+	String name = null;
+	String email = null;
 	
 	@Override
 	public int hashCode() {

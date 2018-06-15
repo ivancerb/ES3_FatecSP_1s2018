@@ -1,5 +1,6 @@
 package br.fatecsp.es3.domino.ws.controller;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.fatecsp.es3.domino.ws.data.GameDataManager;
+import br.fatecsp.es3.domino.ws.data.PlayerDataManager;
 import br.fatecsp.es3.domino.ws.entities.Game;
 import br.fatecsp.es3.domino.ws.entities.Piece;
 import br.fatecsp.es3.domino.ws.entities.Player;
@@ -22,8 +25,6 @@ import br.fatecsp.es3.domino.ws.entities.Player;
 @RequestMapping("/domino")
 public class DominoController {
 	
-	private static int NEXTPLAYERID = 1;
-	private static int NEXTGAMEID = 1;
 	private static Map<Integer,Player> playersMap = new HashMap<Integer,Player>();
 	private static Map<Integer,Game> gamesMap = new HashMap<Integer,Game>();
 	private static Map<Integer,Player> freePlayersMap= new HashMap<Integer,Player>();
@@ -31,21 +32,9 @@ public class DominoController {
 	/**
 	 * @param player player object
 	 */
-	private void doConnectRoutine(Player player) {
-		playersMap.put(new Integer(NEXTPLAYERID), player);
-		freePlayersMap.put(NEXTPLAYERID, player);
-		NEXTPLAYERID++;
-	}
-	
-	/**
-	 * @param request
-	 * @return the player's id, that will be necessary for all the future transactions
-	 */
-	@RequestMapping("/connect")
-	public @ResponseBody int connectUserToGame(HttpServletRequest request){
-		Player player = new Player(NEXTPLAYERID); 
-		this.doConnectRoutine(player);
-		return player.getId();
+	private void doConnectRoutine(Player player, int id) {
+		playersMap.put(id, player);
+		freePlayersMap.put(id, player);
 	}
 	
 	/**
@@ -53,11 +42,21 @@ public class DominoController {
 	 * @param request
 	 * @return the player's id, that will be necessary for all the future transactions
 	 */
-	@RequestMapping("/connect/{name-player}")
-	public @ResponseBody int connectUserToGame(@PathVariable("name-player") String playerName, HttpServletRequest request){
-		Player player = new Player(NEXTPLAYERID, playerName); 
-		this.doConnectRoutine(player);
-		return player.getId();
+	@RequestMapping("/connect/{id-player}/{name-player}")
+	public @ResponseBody boolean connectUserToGame(
+			@PathVariable("id-player") int playerId,
+			@PathVariable("name-player") String playerName,
+			HttpServletRequest request){
+		try {
+			Player player = new Player(playerId, playerName);
+			if (!PlayerDataManager.checkPlayerExistence(player))
+				return false;
+			this.doConnectRoutine(player, playerId);
+			return true;
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	/**
@@ -66,13 +65,21 @@ public class DominoController {
 	 * @param request
 	 * @return the player's id, that will be necessary for all the future transactions
 	 */
-	@RequestMapping("/connect/{email-player}/{name-player}")
-	public @ResponseBody int connectUserToGame(@PathVariable("email-player") String playerEmail,
+	@RequestMapping("/connect/{id-player}/{email-player}/{name-player}")
+	public @ResponseBody boolean connectUserToGame(
+			@PathVariable("id-player") int playerId,
+			@PathVariable("email-player") String playerEmail,
 			@PathVariable("name-player") String playerName,
-			HttpServletRequest request){
-		Player player = new Player(NEXTPLAYERID, playerName, playerEmail); 
-		this.doConnectRoutine(player);
-		return player.getId();
+			HttpServletRequest request){try {
+				Player player = new Player(playerId, playerName, playerEmail);
+				if (!PlayerDataManager.checkPlayerExistence(player))
+					return false;
+				this.doConnectRoutine(player, playerId);
+				return true;
+			} catch (ClassNotFoundException | SQLException e) {
+				e.printStackTrace();
+				return false;
+			}
 	}
 	
 	/**
@@ -100,16 +107,24 @@ public class DominoController {
 	 * @param request
 	 * @return the game's id, that will be necessary for all the game transactions
 	 */
-	@RequestMapping("/newgame/{id-player1}/{id-player2}")
-	public @ResponseBody int startNewGame(@PathVariable("id-player1") int player1, 
+	@RequestMapping("/newgame/{id-game}/{id-player1}/{id-player2}")
+	public @ResponseBody boolean startNewGame(
+			@PathVariable("id-game") int gameId,
+			@PathVariable("id-player1") int player1, 
 			@PathVariable("id-player2") int player2,
 			HttpServletRequest request){
-		Game game = new Game(NEXTGAMEID, playersMap.get(player1), playersMap.get(player2));
-		gamesMap.put(game.getId(), game);
-		freePlayersMap.remove(player1);
-		freePlayersMap.remove(player2);
-		NEXTGAMEID++;
-		return game.getId();
+		try {
+			Game game = new Game(gameId, playersMap.get(player1), playersMap.get(player2));
+			if (!GameDataManager.checkGameExistence(game))
+				return false;
+			gamesMap.put(game.getId(), game);
+			freePlayersMap.remove(player1);
+			freePlayersMap.remove(player2);
+			return true;
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	/**

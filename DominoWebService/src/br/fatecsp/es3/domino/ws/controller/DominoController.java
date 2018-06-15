@@ -89,7 +89,7 @@ public class DominoController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping("/get-free-players/")
+	@RequestMapping("/get-free-players")
 	public @ResponseBody String getFreePlayers(HttpServletRequest request){
 		ObjectMapper objectMapper = new ObjectMapper();
 		String json="";

@@ -127,6 +127,24 @@ public class DominoController {
 		}
 	}
 	
+	@RequestMapping("/endgame/{id-game}")
+	public @ResponseBody boolean endGame(
+			@PathVariable("id-game") int gameId,
+			HttpServletRequest request){
+		try {
+			Game game = gamesMap.get(gameId);
+			Player player1 = game.getPlayer1();
+			Player player2 = game.getPlayer2();
+			gamesMap.remove(game.getId());
+			freePlayersMap.put(player1.getId(), player1);
+			freePlayersMap.put(player2.getId(), player2);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
 	/**
 	 * @param player1
 	 * @param player2

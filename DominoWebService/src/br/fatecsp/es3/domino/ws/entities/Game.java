@@ -33,6 +33,16 @@ public class Game {
 		return this.pieceExtreme;
 	}
 	
+	public int getNumPieceEnemy(int playerId) {
+		if (playerId == this.player1.getId()) {
+			return this.board.getPlayer2Pieces().size();
+		} else if (playerId == this.player2.getId()) {
+			return this.board.getPlayer1Pieces().size();
+		}
+		
+		return 0;
+	}
+	
 	public boolean play(int playerId, String extremeSide, int pieceDeadEnd, int pieceExtreme) {
 		if(!isFirstMove) {
 			//only allows to play if the extreme matches - if first move this is not verified
@@ -68,7 +78,9 @@ public class Game {
 	}
 	
 	public Piece buyPiece(int playerId) {
-		if(this.board.remainingPieces.isEmpty()) return null;
+		if(this.board.remainingPieces.isEmpty()) {
+			return null;
+		}
 		
 		int position = randomGenerator.nextInt(this.board.remainingPieces.size());
 		Piece piece = this.board.remainingPieces.get(position);
@@ -84,11 +96,20 @@ public class Game {
 	}
 	
 	public boolean isWinner(int playerId) {
-		if(playerId == player1.getId()) {
-			return this.board.player1Pieces.isEmpty();
-		}
-		else {
-			return this.board.player2Pieces.isEmpty();
+		if (this.board.remainingPieces.isEmpty()) {
+			if(playerId == player1.getId()) {
+				return this.board.player1Pieces.size() < this.board.player2Pieces.size();
+			}
+			else {
+				return this.board.player1Pieces.size() > this.board.player2Pieces.size();
+			}
+		} else {
+			if(playerId == player1.getId()) {
+				return this.board.player1Pieces.isEmpty();
+			}
+			else {
+				return this.board.player2Pieces.isEmpty();
+			}
 		}
 	}
 	

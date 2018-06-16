@@ -81,10 +81,10 @@ public class Board {
 	
 	/**
 	 * Sorteia as pecas entre os players 1 e 2, sendo 14 pra cada
-	 * @param player1Piece
+	 * @param player1Pieces
 	 * @param player2Pieces
 	 */
-	private void assignPieces(HashSet<Piece> player1Piece, HashSet<Piece> player2Pieces) {
+	private void assignPieces(HashSet<Piece> player1Pieces, HashSet<Piece> player2Pieces) {
 		List<Piece> allPiecesList = generateBoardPieces();
 		boolean[] usedPieceList = generateUsedPieceList();
 		int i=0;
@@ -94,7 +94,7 @@ public class Board {
 		while(i<7) { //vamos sortear 7 pecas para o jogador 1
 			int numeroSorteado = random.nextInt(28); //sorteia valores de 0 a 27
 			if(!usedPieceList[numeroSorteado]){
-				player1Piece.add(allPiecesList.get(numeroSorteado)); //adiciona peca sorteada à lista do player1
+				player1Pieces.add(allPiecesList.get(numeroSorteado)); //adiciona peca sorteada à lista do player1
 				usedPieceList[numeroSorteado]=true; //marca o numero sorteado como indisponivel
 				i++; //increment number of pieces player 1 already have
 			}

@@ -193,6 +193,20 @@ public class DominoController {
 	/**
 	 * @param gameId
 	 * @param playerId
+	 * @param request
+	 * @return pega o número de peças do jogador adversário
+	 */
+	@RequestMapping("/get-num-tiles-enemy/{id-game}/{id-player}")
+	public @ResponseBody int getNumTilesEnemy(@PathVariable("id-game") int gameId,
+			@PathVariable("id-player") int playerId,
+			HttpServletRequest request){
+		Game game = gamesMap.get(gameId);
+		return game.getNumPieceEnemy(playerId);
+	}
+	
+	/**
+	 * @param gameId
+	 * @param playerId
 	 * @param extremeSide
 	 * @param valueDeadEnd
 	 * @param valueExtreme

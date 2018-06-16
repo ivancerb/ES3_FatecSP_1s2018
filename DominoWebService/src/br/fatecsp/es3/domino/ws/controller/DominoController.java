@@ -174,7 +174,7 @@ public class DominoController {
 	 * @param request
 	 */
 	@RequestMapping("/get-piece-extreme/{id-game}")
-	public @ResponseBody int getPieceExtreme(@PathVariable("id-game") int gameId, @PathVariable("id-player") int playerId, 
+	public @ResponseBody int getPieceExtreme(@PathVariable("id-game") int gameId, 
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
 		return game.getPieceExtreme();
@@ -184,7 +184,7 @@ public class DominoController {
 	 * @param request
 	 */
 	@RequestMapping("/get-piece-dead-end/{id-game}")
-	public @ResponseBody int getPieceDeadEnd(@PathVariable("id-game") int gameId, @PathVariable("id-player") int playerId, 
+	public @ResponseBody int getPieceDeadEnd(@PathVariable("id-game") int gameId, 
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
 		return game.getPieceDeadEnd();

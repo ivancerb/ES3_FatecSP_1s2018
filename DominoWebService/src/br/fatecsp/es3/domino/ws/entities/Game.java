@@ -13,6 +13,8 @@ public class Game {
 	private int lastOneToPlayId;
 	private boolean isFirstMove = true;
 	private Random randomGenerator;
+	private int pieceDeadEnd = -1;
+	private int pieceExtreme = -1;
 	
 	public Game(int id, Player player1, Player player2) {
 		this.id = id;
@@ -22,7 +24,15 @@ public class Game {
 		this.lastOneToPlayId = player1.getId();
 		this.randomGenerator = new Random();
 	}
-		
+	
+	public int getPieceDeadEnd() {
+		return this.pieceDeadEnd;
+	}
+	
+	public int getPieceExtreme() {
+		return this.pieceExtreme;
+	}
+	
 	public boolean play(int playerId, String extremeSide, int pieceDeadEnd, int pieceExtreme) {
 		if(!isFirstMove) {
 			//only allows to play if the extreme matches - if first move this is not verified
@@ -40,7 +50,9 @@ public class Game {
 		//remove the piece from the pieces' list
 		this.removePiece(playerId, pieceDeadEnd, pieceExtreme);	
 		this.setLastOneToPlayId(playerId);
-		this.updateExtremes(extremeSide, pieceExtreme, pieceDeadEnd); 
+		this.updateExtremes(extremeSide, pieceExtreme, pieceDeadEnd);
+		this.pieceExtreme = pieceExtreme;
+		this.pieceDeadEnd = pieceDeadEnd;
 		return true;
 	}
 	

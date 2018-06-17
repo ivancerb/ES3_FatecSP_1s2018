@@ -136,4 +136,35 @@ public class Board {
 		for(int i=0;i<28;i++) { usedPiecesList[i]=false; }
 		return usedPiecesList;
 	}
+	
+	/**
+	 * @param player Vale 1 para o player1 e 2 para o player2
+	 * @return Pega a peça de valores iguais e que tenha o maior valor para um jogador!
+	 * 	
+	 */
+	public int getMaxEqualValuePiece(int player) {
+		int maxPlayer = -1;
+		if (player == 1) {
+			for (Piece p : player1Pieces)
+			{
+				if (p.faceA == p.faceB && p.faceA > maxPlayer) {
+					maxPlayer = p.faceA;
+				}
+			}
+		}
+		else if (player == 2) {
+			for (Piece p : player2Pieces)
+			{
+				if (p.faceA == p.faceB && p.faceA > maxPlayer) {
+					maxPlayer = p.faceA;
+				}
+			}
+		}
+		
+		return maxPlayer;
+	}
+	
+	public boolean canPlayer1PlayAtFirst() {
+		return this.getMaxEqualValuePiece(1) > this.getMaxEqualValuePiece(2);
+	}
 }

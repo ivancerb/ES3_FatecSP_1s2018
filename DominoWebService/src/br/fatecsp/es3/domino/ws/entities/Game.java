@@ -15,6 +15,7 @@ public class Game {
 	private Random randomGenerator;
 	private int pieceDeadEnd = -1;
 	private int pieceExtreme = -1;
+	private String lastExtremeSide;
 	
 	public Game(int id, Player player1, Player player2) {
 		this.id = id;
@@ -31,6 +32,11 @@ public class Game {
 	
 	public int getPieceExtreme() {
 		return this.pieceExtreme;
+	}
+	
+	public String getLastExtremeSide()
+	{
+		return this.lastExtremeSide;
 	}
 	
 	public int getNumPieceEnemy(int playerId) {
@@ -58,23 +64,56 @@ public class Game {
 			}
 		}
 		//remove the piece from the pieces' list
-		this.removePiece(playerId, pieceDeadEnd, pieceExtreme);	
-		this.setLastOneToPlayId(playerId);
-		this.updateExtremes(extremeSide, pieceExtreme, pieceDeadEnd);
-		this.pieceExtreme = pieceExtreme;
-		this.pieceDeadEnd = pieceDeadEnd;
-		return true;
+		if (this.removePiece(playerId, pieceDeadEnd, pieceExtreme)) {
+			this.setLastOneToPlayId(playerId);
+			this.updateExtremes(extremeSide, pieceExtreme, pieceDeadEnd);
+			this.pieceExtreme = pieceExtreme;
+			this.pieceDeadEnd = pieceDeadEnd;
+			return true;
+		}
+		
+		return false;
 	}
 	
 	public boolean canPlay(int playerId) {
-		if(!isFirstMove)
-		{
+		if(!isFirstMove) {
 			int lastPlayer = this.getLastOneToPlayId();
 			
 			return lastPlayer != playerId;
+		} else {
+			boolean player1CanPlay = this.board.canPlayer1PlayAtFirst();
+			
+			if (player1CanPlay) {
+				return playerId == this.player1.id;
+			}
+			else
+			{
+				return playerId == this.player2.id;
+			}
 		}
-		
-		return true;
+	}
+	
+	public boolean canPlay(int playerId, int pieceDeadEnd, int pieceExtreme) {
+		Piece piece = new Piece(pieceDeadEnd, pieceExtreme);
+		return this.canPlay(playerId, piece);
+	}
+	
+	private boolean canPlay(int playerId, Piece piece) {
+		if(!isFirstMove) {
+			return this.canPlay(playerId);
+		} else {
+			if (canPlay(playerId)) {
+				if (piece.faceA == piece.faceB) {
+					if (playerId == this.player1.id) {
+						return this.board.getMaxEqualValuePiece(1) == piece.faceA;
+					} else if (playerId == this.player2.id) {
+						return this.board.getMaxEqualValuePiece(2) == piece.faceA;
+					}
+				}
+			}
+			
+			return false;
+		}
 	}
 	
 	public Piece buyPiece(int playerId) {
@@ -113,25 +152,33 @@ public class Game {
 		}
 	}
 	
-	private void removePieceFromHashSet(HashSet<Piece> pieces, Piece piece) {
+	private boolean removePieceFromHashSet(HashSet<Piece> pieces, Piece piece) {
 		Iterator<Piece> iterator = pieces.iterator();
 		while (iterator.hasNext()) {
 			Piece p = iterator.next();
 		    if (p.equals(piece)) {
 		        iterator.remove();
-		        break;
+		        return true;
 		      }
 		}
+		return false;
 	}
 	
-	private void removePiece(int playerId, int valueDeadEnd, int valueExtreme) {
+	public Piece getLastPlayedPiece() {
+		Piece piece = new Piece(this.pieceDeadEnd, this.pieceExtreme);
+		return piece;
+	}
+ 	
+	private boolean removePiece(int playerId, int valueDeadEnd, int valueExtreme) {
 		Piece piece = new Piece(valueDeadEnd, valueExtreme);
 		if(playerId == player1.getId()) {
-			this.removePieceFromHashSet(this.board.player1Pieces, piece);
+			return this.removePieceFromHashSet(this.board.player1Pieces, piece);
 		}
-		else {
-			this.removePieceFromHashSet(this.board.player2Pieces, piece);
+		else if(playerId == player2.getId()) {
+			return this.removePieceFromHashSet(this.board.player2Pieces, piece);
 		}
+		
+		return false;
 	}
 	
 	private void updateExtremes(String extremeSide, int valueExtreme, int valueDeadEnd) {
@@ -139,12 +186,15 @@ public class Game {
 			isFirstMove = false; 
 			this.board.setExtremeA(valueExtreme);
 			this.board.setExtremeB(valueDeadEnd);
+			this.lastExtremeSide = "AB";
 		}
 		else {
 			if(extremeSide.equals("A")) {
 				this.board.setExtremeA(valueExtreme);
+				this.lastExtremeSide = "A";
 			}else {
 				this.board.setExtremeB(valueExtreme);
+				this.lastExtremeSide = "B";
 			}
 		}
 	}

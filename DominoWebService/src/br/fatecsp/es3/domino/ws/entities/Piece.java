@@ -31,10 +31,10 @@ public class Piece {
 		if (getClass() != obj.getClass())
 			return false;
 		Piece other = (Piece) obj;
-		if (faceA != other.faceA)
-			return false;
-		if (faceB != other.faceB)
-			return false;
+		if (faceA != other.faceA || faceB != other.faceB) {
+			return faceA == other.faceB && faceB == other.faceA;
+		}
+			
 		return true;
 	}
 

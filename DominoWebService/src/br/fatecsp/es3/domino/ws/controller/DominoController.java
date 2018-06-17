@@ -28,6 +28,8 @@ public class DominoController {
 	private static Map<Integer,Player> playersMap = new HashMap<Integer,Player>();
 	private static Map<Integer,Game> gamesMap = new HashMap<Integer,Game>();
 	private static Map<Integer,Player> freePlayersMap= new HashMap<Integer,Player>();
+	private ObjectMapper objectMapper = new ObjectMapper();
+	private String json = "";
 	
 	/**
 	 * @param player player object
@@ -91,8 +93,6 @@ public class DominoController {
 	 */
 	@RequestMapping("/get-free-players")
 	public @ResponseBody String getFreePlayers(HttpServletRequest request){
-		ObjectMapper objectMapper = new ObjectMapper();
-		String json="";
 		try {
 			json = objectMapper.writeValueAsString(freePlayersMap);
 		} catch (JsonProcessingException e) {
@@ -160,8 +160,7 @@ public class DominoController {
 		}else if(playerId == game.getPlayer2().getId()) {
 			playerPieces = game.getBoard().getPlayer2Pieces();
 		}
-		ObjectMapper objectMapper = new ObjectMapper();
-		String json="";
+		
 		try {
 			json = objectMapper.writeValueAsString(playerPieces);
 		} catch (JsonProcessingException e) {
@@ -173,21 +172,40 @@ public class DominoController {
 	/**
 	 * @param request
 	 */
-	@RequestMapping("/get-piece-extreme/{id-game}")
-	public @ResponseBody int getPieceExtreme(@PathVariable("id-game") int gameId, 
+	@RequestMapping("/get-last-played-piece/{id-game}")
+	public @ResponseBody String getLastPlayedPiece(@PathVariable("id-game") int gameId, 
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
-		return game.getPieceExtreme();
+		Piece piece = game.getLastPlayedPiece();
+		
+		try {
+			json = objectMapper.writeValueAsString(piece);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return json;
 	}
 	
 	/**
 	 * @param request
 	 */
-	@RequestMapping("/get-piece-dead-end/{id-game}")
-	public @ResponseBody int getPieceDeadEnd(@PathVariable("id-game") int gameId, 
+	@RequestMapping("/get-last-extreme-side/{id-game}")
+	public @ResponseBody String getLastExtremeSide(@PathVariable("id-game") int gameId, 
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
-		return game.getPieceDeadEnd();
+		
+		String lastExtremeSide = game.getLastExtremeSide();
+		
+		if (lastExtremeSide == null) {
+			lastExtremeSide = "";
+		}
+		
+		try {
+			json = objectMapper.writeValueAsString(lastExtremeSide);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return json;		
 	}
 	
 	/**
@@ -221,7 +239,8 @@ public class DominoController {
 			@PathVariable("extreme-side") String extremeSide,
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
-		return game.play(playerId, extremeSide, valueDeadEnd, valueExtreme);
+		return game.canPlay(playerId, valueDeadEnd, valueExtreme) && 
+				game.play(playerId, extremeSide, valueDeadEnd, valueExtreme);
 	}
 	
 	/**
@@ -251,8 +270,6 @@ public class DominoController {
 		Game game = gamesMap.get(gameId);
 		Piece piece = game.buyPiece(playerId);
 		
-		ObjectMapper objectMapper = new ObjectMapper();
-		String json="";
 		try {
 			json = objectMapper.writeValueAsString(piece);
 		} catch (JsonProcessingException e) {

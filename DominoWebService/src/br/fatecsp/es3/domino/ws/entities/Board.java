@@ -1,6 +1,7 @@
 package br.fatecsp.es3.domino.ws.entities;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -10,8 +11,8 @@ public class Board {
 	HashSet<Piece> player1Pieces = new HashSet<Piece>();
 	HashSet<Piece> player2Pieces = new HashSet<Piece>();
 	ArrayList<Piece> remainingPieces = new ArrayList<Piece>();
-	int extremeA; //value of one of the extremes of the game
-	int extremeB; //value of another of the extremes of the game
+	int extremeA = -1; //value of one of the extremes of the game
+	int extremeB = -1; //value of another of the extremes of the game
 	
 	public Board() {
 		assignPieces(player1Pieces, player2Pieces);
@@ -166,5 +167,45 @@ public class Board {
 	
 	public boolean canPlayer1PlayAtFirst() {
 		return this.getMaxEqualValuePiece(1) > this.getMaxEqualValuePiece(2);
+	}
+	
+	/**
+	 * @param player Vale 1 para o player1 e 2 para o player2
+	 * @return Verifica se um jogador consegue jogar a rodada atual!
+	 * 	
+	 */
+	public boolean canPlayerPlayNow(int player) {
+		if (this.extremeA == -1) {
+			return true;
+		}
+		
+		if (player == 1) {
+			for (Piece p : player1Pieces)
+			{
+				if( Arrays.asList(this.extremeA,this.extremeB).contains(p.faceA) ||
+						Arrays.asList(this.extremeA,this.extremeB).contains(p.faceB) ) {
+					return true;
+				}
+			}			
+		}
+		else if (player == 2) {
+			for (Piece p : player2Pieces)
+			{
+				if( Arrays.asList(this.extremeA,this.extremeB).contains(p.faceA) ||
+						Arrays.asList(this.extremeA,this.extremeB).contains(p.faceB) ) {
+					return true;
+				}
+			}
+		}
+		
+		for (Piece p : remainingPieces)
+		{
+			if( Arrays.asList(this.extremeA,this.extremeB).contains(p.faceA) ||
+					Arrays.asList(this.extremeA,this.extremeB).contains(p.faceB) ) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

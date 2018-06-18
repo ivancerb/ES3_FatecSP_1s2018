@@ -79,7 +79,23 @@ public class Game {
 		if(!isFirstMove) {
 			int lastPlayer = this.getLastOneToPlayId();
 			
-			return lastPlayer != playerId;
+			if (lastPlayer != playerId) {
+				if (playerId == this.player1.id) {
+					return this.board.canPlayerPlayNow(1);
+				} else if (playerId == this.player2.id) {
+					return this.board.canPlayerPlayNow(2);
+				}
+			} else {
+				if (playerId == this.player1.id) {
+					return !this.board.canPlayerPlayNow(2) &&
+							this.board.canPlayerPlayNow(1);
+				} else if (playerId == this.player2.id) {
+					return !this.board.canPlayerPlayNow(1) &&
+							this.board.canPlayerPlayNow(2);
+				}
+			}
+			
+			return false;
 		} else {
 			boolean player1CanPlay = this.board.canPlayer1PlayAtFirst();
 			
@@ -135,7 +151,8 @@ public class Game {
 	}
 	
 	public boolean isWinner(int playerId) {
-		if (this.board.remainingPieces.isEmpty()) {
+		if (!this.board.canPlayerPlayNow(1) &&
+				!this.board.canPlayerPlayNow(2)) {
 			if(playerId == player1.getId()) {
 				return this.board.player1Pieces.size() < this.board.player2Pieces.size();
 			}

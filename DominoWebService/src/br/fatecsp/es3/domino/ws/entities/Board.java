@@ -169,11 +169,6 @@ public class Board {
 		return this.getMaxEqualValuePiece(1) > this.getMaxEqualValuePiece(2);
 	}
 	
-	/**
-	 * @param player Vale 1 para o player1 e 2 para o player2
-	 * @return Verifica se um jogador consegue jogar a rodada atual!
-	 * 	
-	 */
 	public boolean canPlayerPlayNow(int player) {
 		if (this.extremeA == -1) {
 			return true;
@@ -196,6 +191,19 @@ public class Board {
 					return true;
 				}
 			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @param player Vale 1 para o player1 e 2 para o player2
+	 * @return Verifica se um jogador consegue jogar a rodada atual!
+	 * 	
+	 */
+	public boolean canPlayerPlayNowBuying(int player) {
+		if (this.canPlayerPlayNow(player)) {
+			return true;
 		}
 		
 		for (Piece p : remainingPieces)

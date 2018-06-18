@@ -75,24 +75,46 @@ public class Game {
 		return false;
 	}
 	
-	public boolean canPlay(int playerId) {
+	public boolean canPlayBuying(int playerId) {
 		if(!isFirstMove) {
 			int lastPlayer = this.getLastOneToPlayId();
 			
 			if (lastPlayer != playerId) {
 				if (playerId == this.player1.id) {
-					return this.board.canPlayerPlayNow(1);
+					return this.board.canPlayerPlayNowBuying(1);
 				} else if (playerId == this.player2.id) {
-					return this.board.canPlayerPlayNow(2);
+					return this.board.canPlayerPlayNowBuying(2);
 				}
 			} else {
 				if (playerId == this.player1.id) {
-					return !this.board.canPlayerPlayNow(2) &&
-							this.board.canPlayerPlayNow(1);
+					return !this.board.canPlayerPlayNowBuying(2) &&
+							this.board.canPlayerPlayNowBuying(1);
 				} else if (playerId == this.player2.id) {
-					return !this.board.canPlayerPlayNow(1) &&
-							this.board.canPlayerPlayNow(2);
+					return !this.board.canPlayerPlayNowBuying(1) &&
+							this.board.canPlayerPlayNowBuying(2);
 				}
+			}
+			
+			return false;
+		} else {
+			boolean player1CanPlay = this.board.canPlayer1PlayAtFirst();
+			
+			if (player1CanPlay) {
+				return playerId == this.player1.id;
+			}
+			else
+			{
+				return playerId == this.player2.id;
+			}
+		}
+	}
+	
+	public boolean canPlay(int playerId) {
+		if(!isFirstMove) {
+			if (playerId == this.player1.id) {
+				return this.board.canPlayerPlayNow(1);
+			} else if (playerId == this.player2.id) {
+				return this.board.canPlayerPlayNow(2);
 			}
 			
 			return false;
@@ -116,9 +138,9 @@ public class Game {
 	
 	private boolean canPlay(int playerId, Piece piece) {
 		if(!isFirstMove) {
-			return this.canPlay(playerId);
+			return this.canPlayBuying(playerId);
 		} else {
-			if (canPlay(playerId)) {
+			if (canPlayBuying(playerId)) {
 				if (piece.faceA == piece.faceB) {
 					if (playerId == this.player1.id) {
 						return this.board.getMaxEqualValuePiece(1) == piece.faceA;
@@ -151,8 +173,8 @@ public class Game {
 	}
 	
 	public boolean isWinner(int playerId) {
-		if (!this.board.canPlayerPlayNow(1) &&
-				!this.board.canPlayerPlayNow(2)) {
+		if (!this.board.canPlayerPlayNowBuying(1) &&
+				!this.board.canPlayerPlayNowBuying(2)) {
 			if(playerId == player1.getId()) {
 				return this.board.player1Pieces.size() < this.board.player2Pieces.size();
 			}

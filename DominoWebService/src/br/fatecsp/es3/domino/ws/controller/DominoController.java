@@ -247,7 +247,21 @@ public class DominoController {
 	 * @param gameId
 	 * @param playerId
 	 * @param request
-	 * @return se o jogador já pode jogar
+	 * @return se o jogador já pode jogar, mesmo que comprando novas peças
+	 */
+	@RequestMapping("/can-play-buying/{id-game}/{id-player}")
+	public @ResponseBody boolean canPlayBuying(@PathVariable("id-game") int gameId,
+			@PathVariable("id-player") int playerId,
+			HttpServletRequest request){
+		Game game = gamesMap.get(gameId);
+		return game.canPlayBuying(playerId);
+	}
+	
+	/**
+	 * @param gameId
+	 * @param playerId
+	 * @param request
+	 * @return se o jogador já pode jogar, sem comprar novas peças
 	 */
 	@RequestMapping("/can-play/{id-game}/{id-player}")
 	public @ResponseBody boolean canPlay(@PathVariable("id-game") int gameId,

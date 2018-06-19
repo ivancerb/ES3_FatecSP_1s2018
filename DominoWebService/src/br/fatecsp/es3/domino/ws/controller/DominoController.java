@@ -136,6 +136,11 @@ public class DominoController {
 			HttpServletRequest request){
 		try {
 			Game game = gamesMap.get(gameId);
+			
+			if (game == null) {
+				return false;
+			}
+			
 			Player player1 = game.getPlayer1();
 			Player player2 = game.getPlayer2();
 			gamesMap.remove(game.getId());
@@ -158,10 +163,13 @@ public class DominoController {
 			HttpServletRequest request){
 		HashSet<Piece> playerPieces = new HashSet<Piece>();
 		Game game = gamesMap.get(gameId);
-		if(playerId == game.getPlayer1().getId()) {
-			playerPieces = game.getBoard().getPlayer1Pieces();
-		}else if(playerId == game.getPlayer2().getId()) {
-			playerPieces = game.getBoard().getPlayer2Pieces();
+		
+		if (game != null) {
+			if(playerId == game.getPlayer1().getId()) {
+				playerPieces = game.getBoard().getPlayer1Pieces();
+			}else if(playerId == game.getPlayer2().getId()) {
+				playerPieces = game.getBoard().getPlayer2Pieces();
+			}
 		}
 		
 		try {
@@ -178,8 +186,14 @@ public class DominoController {
 	@RequestMapping("/get-last-played-piece/{id-game}")
 	public @ResponseBody String getLastPlayedPiece(@PathVariable("id-game") int gameId, 
 			HttpServletRequest request){
+		Piece piece;
 		Game game = gamesMap.get(gameId);
-		Piece piece = game.getLastPlayedPiece();
+		
+		if (game != null) {
+			piece = game.getLastPlayedPiece();
+		} else {
+			piece = new Piece(-1, -1);
+		}
 		
 		try {
 			json = objectMapper.writeValueAsString(piece);
@@ -196,9 +210,14 @@ public class DominoController {
 	public @ResponseBody String getLastExtremeSide(@PathVariable("id-game") int gameId, 
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
+		String lastExtremeSide;
 		
-		String lastExtremeSide = game.getLastExtremeSide();
-		
+		if (game != null) {
+			lastExtremeSide = game.getLastExtremeSide();
+		} else {
+			lastExtremeSide = "";
+		}
+				
 		if (lastExtremeSide == null) {
 			lastExtremeSide = "";
 		}
@@ -222,7 +241,11 @@ public class DominoController {
 			@PathVariable("id-player") int playerId,
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
-		return game.getNumPieceEnemy(playerId);
+		if (game != null) {
+			return game.getNumPieceEnemy(playerId);
+		} else {
+			return -1;
+		}
 	}
 	
 	/**
@@ -242,8 +265,12 @@ public class DominoController {
 			@PathVariable("extreme-side") String extremeSide,
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
-		return game.canPlay(playerId, valueDeadEnd, valueExtreme) && 
-				game.play(playerId, extremeSide, valueDeadEnd, valueExtreme);
+		if (game != null) {
+			return game.canPlay(playerId, valueDeadEnd, valueExtreme) && 
+					game.play(playerId, extremeSide, valueDeadEnd, valueExtreme);
+		} else {
+			return false;
+		}
 	}
 	
 	/**
@@ -257,7 +284,11 @@ public class DominoController {
 			@PathVariable("id-player") int playerId,
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
-		return game.canPlayBuying(playerId);
+		if (game != null) {
+			return game.canPlayBuying(playerId);
+		} else {
+			return false;
+		}
 	}
 	
 	/**
@@ -271,7 +302,11 @@ public class DominoController {
 			@PathVariable("id-player") int playerId,
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
-		return game.canPlay(playerId);
+		if (game != null) {
+			return game.canPlay(playerId);
+		} else {
+			return false;
+		}
 	}
 	
 	/**
@@ -285,14 +320,19 @@ public class DominoController {
 			@PathVariable("id-player") int playerId,
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
-		Piece piece = game.buyPiece(playerId);
-		
-		try {
-			json = objectMapper.writeValueAsString(piece);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+		if (game != null) {
+			Piece piece = game.buyPiece(playerId);
+			
+			try {
+				json = objectMapper.writeValueAsString(piece);
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+			return json;
+		} else {
+			return "";
 		}
-		return json;
+		
 	}
 	
 	/**
@@ -306,7 +346,11 @@ public class DominoController {
 			@PathVariable("id-player") int playerId,
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
-		return game.isWinner(playerId);
+		if (game != null) {
+			return game.isWinner(playerId);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -339,41 +383,45 @@ public class DominoController {
 			@PathVariable("id-player") int playerId,
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
-		boolean win = game.isWinner(playerId);
-		try {
-			if (RankingDataManager.checkRanking(playerId)) {
-				List<Ranking> li = RankingDataManager.getAllRankings();
-				Ranking nr = null;
-				for (Ranking r : li) {
-					if (r.getPlayer() == playerId) {
-						nr = r;
-						break;
+		if (game != null) {
+			boolean win = game.isWinner(playerId);
+			try {
+				if (RankingDataManager.checkRanking(playerId)) {
+					List<Ranking> li = RankingDataManager.getAllRankings();
+					Ranking nr = null;
+					for (Ranking r : li) {
+						if (r.getPlayer() == playerId) {
+							nr = r;
+							break;
+						}
 					}
-				}
-				if (nr == null) {
-					return false;
-				}
-				nr.setPartidas_jogadas(nr.getPartidas_jogadas() + 1);
-				if (win) {
-					nr.setVitorias(nr.getVitorias() + 1);
-				}
-				RankingDataManager.updateRanking(nr);
-			} else {
-				Ranking r = new Ranking();
-				r.setPlayer(playerId);
-				r.setPartidas_jogadas(1);
-				if (win) {
-					r.setVitorias(1);
+					if (nr == null) {
+						return false;
+					}
+					nr.setPartidas_jogadas(nr.getPartidas_jogadas() + 1);
+					if (win) {
+						nr.setVitorias(nr.getVitorias() + 1);
+					}
+					RankingDataManager.updateRanking(nr);
 				} else {
-					r.setVitorias(0);
+					Ranking r = new Ranking();
+					r.setPlayer(playerId);
+					r.setPartidas_jogadas(1);
+					if (win) {
+						r.setVitorias(1);
+					} else {
+						r.setVitorias(0);
+					}
+					RankingDataManager.insertRanking(r);
 				}
-				RankingDataManager.insertRanking(r);
+				return true;
+			} catch (ClassNotFoundException | SQLException e) {
+				e.printStackTrace();
 			}
-			return true;
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
+			
+			return false;
+		} else {
+			return false;
 		}
-		
-		return false;
 	}
 }

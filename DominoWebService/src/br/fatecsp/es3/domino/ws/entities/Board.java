@@ -165,8 +165,45 @@ public class Board {
 		return maxPlayer;
 	}
 	
+	/**
+	 * @param player Vale 1 para o player1 e 2 para o player2
+	 * @return Pega a soma dos pontos da peça de maior valor para um jogador!
+	 * 	
+	 */
+	public int getMaxSummedValuePiece(int player) {
+		int maxPlayer = -1;
+		if (player == 1) {
+			for (Piece p : player1Pieces)
+			{
+				if (p.faceA + p.faceB > maxPlayer) {
+					maxPlayer = p.faceA + p.faceB;
+				}
+			}
+		}
+		else if (player == 2) {
+			for (Piece p : player2Pieces)
+			{
+				if (p.faceA + p.faceB > maxPlayer) {
+					maxPlayer = p.faceA + p.faceB;
+				}
+			}
+		}
+		
+		return maxPlayer;
+	}
+	
 	public boolean canPlayer1PlayAtFirst() {
-		return this.getMaxEqualValuePiece(1) > this.getMaxEqualValuePiece(2);
+		int equal1 = this.getMaxEqualValuePiece(1);
+		int equal2 = this.getMaxEqualValuePiece(2);
+		
+		if (equal1 > -1 || equal2 > -1) {
+			return  equal1 > equal2;
+		} else {
+			int unsame1 = this.getMaxSummedValuePiece(1);
+			int unsame2 = this.getMaxSummedValuePiece(2);
+			return unsame1 > unsame2;
+		}
+		 
 	}
 	
 	public boolean canPlayerPlayNow(int player) {

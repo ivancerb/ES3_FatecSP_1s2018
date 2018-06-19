@@ -141,11 +141,19 @@ public class Game {
 			return this.canPlayBuying(playerId);
 		} else {
 			if (canPlayBuying(playerId)) {
-				if (piece.faceA == piece.faceB) {
-					if (playerId == this.player1.id) {
+				if (playerId == this.player1.id) {
+					int equal = this.board.getMaxEqualValuePiece(1);
+					if (equal > -1) {
 						return this.board.getMaxEqualValuePiece(1) == piece.faceA;
-					} else if (playerId == this.player2.id) {
+					} else {
+						return this.board.getMaxSummedValuePiece(1) == piece.faceA + piece.faceB;
+					}
+				} else if (playerId == this.player2.id) {
+					int equal = this.board.getMaxEqualValuePiece(2);
+					if (equal > -1) {
 						return this.board.getMaxEqualValuePiece(2) == piece.faceA;
+					} else {
+						return this.board.getMaxSummedValuePiece(2) == piece.faceA + piece.faceB;
 					}
 				}
 			}

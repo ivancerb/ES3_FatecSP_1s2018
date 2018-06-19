@@ -3,6 +3,7 @@ package br.fatecsp.es3.domino.ws.controller;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,9 +18,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.fatecsp.es3.domino.ws.data.GameDataManager;
 import br.fatecsp.es3.domino.ws.data.PlayerDataManager;
+import br.fatecsp.es3.domino.ws.data.RankingDataManager;
 import br.fatecsp.es3.domino.ws.entities.Game;
 import br.fatecsp.es3.domino.ws.entities.Piece;
 import br.fatecsp.es3.domino.ws.entities.Player;
+import br.fatecsp.es3.domino.ws.entities.Ranking;
 
 @Controller
 @RequestMapping("/domino")
@@ -306,4 +309,71 @@ public class DominoController {
 		return game.isWinner(playerId);
 	}
 
+	/**
+	 * @param request
+	 */
+	@RequestMapping("/get-all-rankings")
+	public @ResponseBody String getAllRankings(HttpServletRequest request){
+		List<Ranking> lista;
+		
+		try {
+			lista = RankingDataManager.getAllRankings();
+			json = objectMapper.writeValueAsString(lista);
+		} catch (ClassNotFoundException | SQLException e1) {
+			e1.printStackTrace();
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		
+		return json;		
+	}
+	
+	/**
+	 * @param gameId
+	 * @param playerId
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping("/update-ranking/{id-game}/{id-player}")
+	public @ResponseBody boolean updateRanking(@PathVariable("id-game") int gameId,
+			@PathVariable("id-player") int playerId,
+			HttpServletRequest request){
+		Game game = gamesMap.get(gameId);
+		boolean win = game.isWinner(playerId);
+		try {
+			if (RankingDataManager.checkRanking(playerId)) {
+				List<Ranking> li = RankingDataManager.getAllRankings();
+				Ranking nr = null;
+				for (Ranking r : li) {
+					if (r.getPlayer() == playerId) {
+						nr = r;
+						break;
+					}
+				}
+				if (nr == null) {
+					return false;
+				}
+				nr.setPartidas_jogadas(nr.getPartidas_jogadas() + 1);
+				if (win) {
+					nr.setVitorias(nr.getVitorias() + 1);
+				}
+				RankingDataManager.updateRanking(nr);
+			} else {
+				Ranking r = new Ranking();
+				r.setPlayer(playerId);
+				r.setPartidas_jogadas(1);
+				if (win) {
+					r.setVitorias(1);
+				} else {
+					r.setVitorias(0);
+				}
+				RankingDataManager.insertRanking(r);
+			}
+			return true;
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
 }

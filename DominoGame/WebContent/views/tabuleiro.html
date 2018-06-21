@@ -2,63 +2,138 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>Dominó!</title>
+	<script>
+		var i=0;
+		var horarioi = 0;
+		var pecasJogadas = 0;
+		var primeira = true;
+ 		var numPecasOponente = 7;
+ 		var horario = true;
+		
+// 		var pecas[] = {}
+		
+		function apareceNaTela(horario){
+			//alert("entrou na function com valor horario="+ horario);
+			if(primeira){
+				//alert("primeira peca!");
+				i++;
+				horarioi++;
+			    var x = document.getElementById("peca1");
+			    x.style.display = "block";
+			    primeira=false;
+			   
+			} 
+			else{
+				if(horario==true){
+					//alert("horario!");
+					horarioi++;
+					var idPeca = "pecahorario" + horarioi;
+				    var x = document.getElementById(idPeca);
+				    x.style.display = "block";
+				    
+				}else{
+					//alert("antihorario!");
+					i++;
+					var idPeca = "peca" + i;
+				    var x = document.getElementById(idPeca);
+				    x.style.display = "block";
+				}
+				
+			}
+		    pecasJogadas++;
+		}
+		
+	</script>
 </head>
 <body>
 	<div id="pecas-oponente">
-		<img style="z-index:1;position:absolute;margin-top:2%;margin-left:15%;margin-bottom:10%;margin-right:30%" src="../img/black-domino.png"/>
-		<img style="z-index:1;position:absolute;margin-top:2%;margin-left:25%;margin-bottom:10%;margin-right:30%" src="../img/black-domino.png"/>
-		<img style="z-index:1;position:absolute;margin-top:2%;margin-left:35%;margin-bottom:10%;margin-right:30%" src="../img/black-domino.png"/>
-		<img style="z-index:1;position:absolute;margin-top:2%;margin-left:45%;margin-bottom:10%;margin-right:30%" src="../img/black-domino.png"/>
-		<img style="z-index:1;position:absolute;margin-top:2%;margin-left:55%;margin-bottom:10%;margin-right:30%" src="../img/black-domino.png"/>
-		<img style="z-index:1;position:absolute;margin-top:2%;margin-left:65%;margin-bottom:10%;margin-right:30%" src="../img/black-domino.png"/>
-		<img style="z-index:1;position:absolute;margin-top:2%;margin-left:75%;margin-bottom:10%;margin-right:30%" src="../img/black-domino.png"/>
+		<img id="oponente1" style="z-index:1;position:absolute;margin-top:2%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>
+		<img id="oponente2" style="z-index:1;position:absolute;margin-top:2%;margin-left:25%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>
+		<img id="oponente3" style="z-index:1;position:absolute;margin-top:2%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>
+		<img id="oponente4" style="z-index:1;position:absolute;margin-top:2%;margin-left:45%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>
+		<img id="oponente5" style="z-index:1;position:absolute;margin-top:2%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>
+		<img id="oponente6" style="z-index:1;position:absolute;margin-top:2%;margin-left:65%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>
+		<img id="oponente7" style="z-index:1;position:absolute;margin-top:2%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>
 	</div>
 	<img style="z-index:-1;position:absolute;width:100%;height:160%;" src="../img/domino-background.png"/>
 	<img style="z-index:0;position:absolute;margin-top:14%;margin-left:10%;margin-bottom:10%;margin-right:10%;width:80%;height:120%;opacity: 0.8;" src="../img/table.jpg"/>
 	<div id="tabuleiro">
 		<!--  horizontais na parte de baixo -->
-		<img style="z-index:1;position:absolute;margin-top:55%;margin-left:15%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:55%;margin-left:23%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:55%;margin-left:31%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:55%;margin-left:39%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:55%;margin-left:47%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:55%;margin-left:55%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:55%;margin-left:63%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:55%;margin-left:71%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca28" style="z-index:1;position:absolute;margin-top:55%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca27" style="z-index:1;position:absolute;margin-top:55%;margin-left:23%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca26" style="z-index:1;position:absolute;margin-top:55%;margin-left:31%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca25" style="z-index:1;position:absolute;margin-top:55%;margin-left:39%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca24" style="z-index:1;position:absolute;margin-top:55%;margin-left:47%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca23" style="z-index:1;position:absolute;margin-top:55%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca22" style="z-index:1;position:absolute;margin-top:55%;margin-left:63%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca21" style="z-index:1;position:absolute;margin-top:55%;margin-left:71%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
 		<!--  verticais na parte direita -->
-		<img style="z-index:1;position:absolute;margin-top:47%;margin-left:75%;margin-bottom:18%;margin-right:30%" src="../img/small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:39%;margin-left:75%;margin-bottom:26%;margin-right:30%" src="../img/small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:31%;margin-left:75%;margin-bottom:34%;margin-right:30%" src="../img/small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:23%;margin-left:75%;margin-bottom:42%;margin-right:30%" src="../img/small-domino-piece.png"/>
+		<img id="peca20" style="z-index:1;position:absolute;margin-top:47%;margin-left:75%;margin-bottom:18%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="peca19" style="z-index:1;position:absolute;margin-top:39%;margin-left:75%;margin-bottom:26%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="peca18" style="z-index:1;position:absolute;margin-top:31%;margin-left:75%;margin-bottom:34%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="peca17" style="z-index:1;position:absolute;margin-top:23%;margin-left:75%;margin-bottom:42%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
 		<!--  horizontais na parte superior -->
-		<img style="z-index:1;position:absolute;margin-top:19%;margin-left:15%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:19%;margin-left:23%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:19%;margin-left:31%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:19%;margin-left:39%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:19%;margin-left:47%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:19%;margin-left:55%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:19%;margin-left:63%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:19%;margin-left:71%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca9" style="z-index:1;position:absolute;margin-top:19%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca10" style="z-index:1;position:absolute;margin-top:19%;margin-left:23%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca11" style="z-index:1;position:absolute;margin-top:19%;margin-left:31%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca12" style="z-index:1;position:absolute;margin-top:19%;margin-left:39%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca13" style="z-index:1;position:absolute;margin-top:19%;margin-left:47%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca14" style="z-index:1;position:absolute;margin-top:19%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca15" style="z-index:1;position:absolute;margin-top:19%;margin-left:63%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca16" style="z-index:1;position:absolute;margin-top:19%;margin-left:71%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
 		<!--  verticais na parte esquerda -->
-		<img style="z-index:1;position:absolute;margin-top:23%;margin-left:15%;margin-bottom:18%;margin-right:30%" src="../img/small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:31%;margin-left:15%;margin-bottom:26%;margin-right:30%" src="../img/small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:39%;margin-left:15%;margin-bottom:34%;margin-right:30%" src="../img/small-domino-piece.png"/>
+		<img id="peca8" style="z-index:1;position:absolute;margin-top:23%;margin-left:15%;margin-bottom:18%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="peca7" style="z-index:1;position:absolute;margin-top:31%;margin-left:15%;margin-bottom:26%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="peca6" style="z-index:1;position:absolute;margin-top:39%;margin-left:15%;margin-bottom:34%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
 		<!--  horizontais na parte do meio -->
-		<img style="z-index:1;position:absolute;margin-top:43%;margin-left:19%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:43%;margin-left:27%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:43%;margin-left:35%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:43%;margin-left:43%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:43%;margin-left:51%;margin-bottom:10%;margin-right:30%" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca5" style="z-index:1;position:absolute;margin-top:43%;margin-left:19%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca4" style="z-index:1;position:absolute;margin-top:43%;margin-left:27%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca3" style="z-index:1;position:absolute;margin-top:43%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca2" style="z-index:1;position:absolute;margin-top:43%;margin-left:43%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca1" style="z-index:1;position:absolute;margin-top:43%;margin-left:51%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<!-- SENTIDO HORARIO -->
+		<!--  horario - horizontais na parte do meio -->
+		<img id="pecahorario2" style="z-index:1;position:absolute;margin-top:43%;margin-left:59%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario3" style="z-index:1;position:absolute;margin-top:43%;margin-left:67%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario4" style="z-index:1;position:absolute;margin-top:43%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<!--  horario - verticais à esquerda -->
+		<img id="pecahorario5" style="z-index:1;position:absolute;margin-top:35%;margin-left:79%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="pecahorario6" style="z-index:1;position:absolute;margin-top:27%;margin-left:79%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="pecahorario7" style="z-index:1;position:absolute;margin-top:19%;margin-left:79%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<!--  horario - horizontais ao topo -->
+		<img id="pecahorario15" style="z-index:1;position:absolute;margin-top:19%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario14" style="z-index:1;position:absolute;margin-top:19%;margin-left:23%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario13" style="z-index:1;position:absolute;margin-top:19%;margin-left:31%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario12" style="z-index:1;position:absolute;margin-top:19%;margin-left:39%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario11" style="z-index:1;position:absolute;margin-top:19%;margin-left:47%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario10" style="z-index:1;position:absolute;margin-top:19%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario9" style="z-index:1;position:absolute;margin-top:19%;margin-left:63%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario8" style="z-index:1;position:absolute;margin-top:19%;margin-left:71%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<!--  horario - verticais à esquerda -->
+		<img id="pecahorario16" style="z-index:1;position:absolute;margin-top:23%;margin-left:15%;margin-bottom:18%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="pecahorario17" style="z-index:1;position:absolute;margin-top:31%;margin-left:15%;margin-bottom:26%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="pecahorario18" style="z-index:1;position:absolute;margin-top:39%;margin-left:15%;margin-bottom:34%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="pecahorario19" style="z-index:1;position:absolute;margin-top:47%;margin-left:15%;margin-bottom:26%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<!--  horario - horizontais embaixo -->
+		<img id="pecahorario20" style="z-index:1;position:absolute;margin-top:55%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario21" style="z-index:1;position:absolute;margin-top:55%;margin-left:23%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario22" style="z-index:1;position:absolute;margin-top:55%;margin-left:31%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario23" style="z-index:1;position:absolute;margin-top:55%;margin-left:39%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario24" style="z-index:1;position:absolute;margin-top:55%;margin-left:47%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario25" style="z-index:1;position:absolute;margin-top:55%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario26" style="z-index:1;position:absolute;margin-top:55%;margin-left:63%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario27" style="z-index:1;position:absolute;margin-top:55%;margin-left:71%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario28" style="z-index:1;position:absolute;margin-top:55%;margin-left:79%;margin-bottom:34%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
 	</div>
 	<div id="pecas-jogador">
-		<img style="z-index:1;position:absolute;margin-top:60%;margin-left:15%;margin-bottom:10%;margin-right:30%" src="../img/domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:60%;margin-left:25%;margin-bottom:10%;margin-right:30%" src="../img/domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:60%;margin-left:35%;margin-bottom:10%;margin-right:30%" src="../img/domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:60%;margin-left:45%;margin-bottom:10%;margin-right:30%" src="../img/domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:60%;margin-left:55%;margin-bottom:10%;margin-right:30%" src="../img/domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:60%;margin-left:65%;margin-bottom:10%;margin-right:30%" src="../img/domino-piece.png"/>
-		<img style="z-index:1;position:absolute;margin-top:60%;margin-left:75%;margin-bottom:10%;margin-right:30%" src="../img/domino-piece.png"/>
+		<img id="jogador1" style="z-index:1;position:absolute;margin-top:60%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" onclick="apareceNaTela(true)"/>
+		<img id="jogador2" style="z-index:1;position:absolute;margin-top:60%;margin-left:25%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" onclick="apareceNaTela(false)"/>
+		<img id="jogador3" style="z-index:1;position:absolute;margin-top:60%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" onclick="apareceNaTela(true)"/>
+		<img id="jogador4" style="z-index:1;position:absolute;margin-top:60%;margin-left:45%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" onclick="apareceNaTela(false)"/>
+		<img id="jogador5" style="z-index:1;position:absolute;margin-top:60%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" onclick="apareceNaTela(true)"/>
+		<img id="jogador6" style="z-index:1;position:absolute;margin-top:60%;margin-left:65%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" onclick="apareceNaTela(false)"/>
+		<img id="jogador7" style="z-index:1;position:absolute;margin-top:60%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" onclick="apareceNaTela(true)"/>
 	</div>
 	<div id="botao-comprar">
 		<img style="z-index:1;position:absolute;margin-top:70%;margin-left:85%;margin-bottom:10%;margin-right:30%" src="../img/comprar.png"/>

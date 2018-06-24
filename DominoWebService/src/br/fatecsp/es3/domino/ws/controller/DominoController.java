@@ -33,7 +33,7 @@ public class DominoController {
 	private static Map<Integer,Game> gamesMap = new HashMap<Integer,Game>();
 	private static Map<Integer,Player> freePlayersMap= new HashMap<Integer,Player>();
 	private ObjectMapper objectMapper = new ObjectMapper();
-	private String json = "";
+	private static int NEXTGAMEID = 1;
 	
 	/**
 	 * @param player player object
@@ -100,6 +100,7 @@ public class DominoController {
 	@CrossOrigin
 	@RequestMapping("/get-free-players")
 	public @ResponseBody String getFreePlayers(HttpServletRequest request){
+		String json = "";
 		try {
 			json = objectMapper.writeValueAsString(freePlayersMap);
 		} catch (JsonProcessingException e) {
@@ -128,6 +129,7 @@ public class DominoController {
 			gamesMap.put(game.getId(), game);
 			freePlayersMap.remove(player1);
 			freePlayersMap.remove(player2);
+			NEXTGAMEID++;
 			return true;
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
@@ -148,18 +150,12 @@ public class DominoController {
 			@PathVariable("id-player1") int player1, 
 			@PathVariable("id-player2") int player2,
 			HttpServletRequest request){
-		try {
-			Game game = new Game(playersMap.get(player1), playersMap.get(player2));
-			if (!GameDataManager.checkGameExistence(game))
-				return false;
-			gamesMap.put(game.getId(), game);
-			freePlayersMap.remove(player1);
-			freePlayersMap.remove(player2);
-			return true;
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-			return false;
-		}
+				Game game = new Game(NEXTGAMEID, playersMap.get(player1), playersMap.get(player2));
+				gamesMap.put(game.getId(), game);
+				freePlayersMap.remove(player1);
+				freePlayersMap.remove(player2);
+				NEXTGAMEID++;
+				return true;
 	}
 	
 	@CrossOrigin
@@ -198,6 +194,7 @@ public class DominoController {
 		HashSet<Piece> playerPieces = new HashSet<Piece>();
 		Game game = gamesMap.get(gameId);
 		
+		String json = "";
 		if (game != null) {
 			if(playerId == game.getPlayer1().getId()) {
 				playerPieces = game.getBoard().getPlayer1Pieces();
@@ -223,6 +220,7 @@ public class DominoController {
 			HttpServletRequest request){
 		Piece piece;
 		Game game = gamesMap.get(gameId);
+		String json = "";
 		
 		if (game != null) {
 			piece = game.getLastPlayedPiece();
@@ -245,6 +243,8 @@ public class DominoController {
 	@RequestMapping("/get-last-extreme-side/{id-game}")
 	public @ResponseBody String getLastExtremeSide(@PathVariable("id-game") int gameId, 
 			HttpServletRequest request){
+		
+		String json = "";
 		Game game = gamesMap.get(gameId);
 		String lastExtremeSide;
 		
@@ -360,6 +360,8 @@ public class DominoController {
 	public @ResponseBody String buy(@PathVariable("id-game") int gameId,
 			@PathVariable("id-player") int playerId,
 			HttpServletRequest request){
+		
+		String json = "";
 		Game game = gamesMap.get(gameId);
 		if (game != null) {
 			Piece piece = game.buyPiece(playerId);
@@ -401,6 +403,7 @@ public class DominoController {
 	@CrossOrigin
 	@RequestMapping("/get-all-rankings")
 	public @ResponseBody String getAllRankings(HttpServletRequest request){
+		String json = "";
 		List<Ranking> lista;
 		
 		try {

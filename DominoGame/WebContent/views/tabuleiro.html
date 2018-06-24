@@ -3,7 +3,106 @@
 <head>
 <meta charset="UTF-8">
 <title>Dominó!</title>
+
+	<!-- Controla as informacoes do jogador, conecta jogador ao jogo, inicia partida-->
 	<script>
+		//variaveis com infos do usuario
+		var id = 37;
+		var email = "ivanszcer@gmail.com";
+		var nome = "Ivan";
+		var senha = "1234";
+		
+		//variaveis com infos do jogo
+		var idOponente;
+		var idJogo;
+		
+		//pecas
+		var pecasJogo = [];
+		
+		//Conecta o usuario online
+		function connect(){
+			// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    				if(this.responseText=="true"){
+	    					alert("Voce esta conectado");
+	    				}else{
+	    					alert("Problemas de conexao, tente novamente mais tarde.");
+	    				}
+	    			}else{
+	    				alert("Error: " + this.status);
+	    			}
+	    		}
+	    	};
+	
+	    	var url="https://agora-vai.herokuapp.com/domino/connect/" + id + "/" + email + "/" + nome;
+	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+		}
+		
+		//Inicia um novo jogo com um dado usuario
+		function newgame(idOponente){
+			// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    				idJogo = this.responseText;
+	    				getpieces();
+	    				alert("Seu jogo já vai comecar! O id de seu jogo é " + idJogo);
+	    			}else{
+	    				alert("Error: " + this.status);
+	    			}
+	    		}
+	    	};
+
+	    	var url="https://agora-vai.herokuapp.com/domino/newgame/" + id + "/" + idOponente;
+	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+		}
+		
+		//Obtem as pecas sorteadas para o jogador
+		function getpieces(){
+			// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    		        var pecasJogo = JSON.parse(this.responseText);
+	    		        var mensagem = "Suas peças:\n";
+	    				if(pecasJogo.length!="undefined"){
+	    					for(i=0; i<pecasJogo.length; i++){
+		    					mensagem += "[" + pecasJogo[i].faceA + "-" + pecasJogo[i].faceB + "]";   				
+		    				}
+	    				}
+	    				alert(mensagem);
+	    			}else{
+	    				alert("Error: " + this.status);
+	    			}
+	    		}
+	    	};
+
+	    	
+	    	var url="https://agora-vai.herokuapp.com/domino/get-pieces/" + idJogo + "/" + id;
+	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+		}
+	</script>
+	
+	<!-- Comportamento visual do jogo -->
+	<script>
+		//variaveis para controlar o comportamento visual do tabuleiro
 		var i=0;
 		var horarioi = 0;
 		var pecasJogadas = 0;
@@ -43,10 +142,10 @@
 			}
 		    pecasJogadas++;
 		}
-		
 	</script>
+	
 </head>
-<body>
+<body onload="connect();newgame(40)">
 	<div id="pecas-oponente">
 		<img id="oponente1" style="z-index:1;position:absolute;margin-top:2%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>
 		<img id="oponente2" style="z-index:1;position:absolute;margin-top:2%;margin-left:25%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>

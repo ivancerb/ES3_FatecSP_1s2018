@@ -8,10 +8,11 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +25,7 @@ import br.fatecsp.es3.domino.ws.entities.Piece;
 import br.fatecsp.es3.domino.ws.entities.Player;
 import br.fatecsp.es3.domino.ws.entities.Ranking;
 
-@Controller
+@RestController
 @RequestMapping("/domino")
 public class DominoController {
 	
@@ -47,6 +48,7 @@ public class DominoController {
 	 * @param request
 	 * @return the player's id, that will be necessary for all the future transactions
 	 */
+	@CrossOrigin
 	@RequestMapping("/connect/{id-player}/{name-player}")
 	public @ResponseBody boolean connectUserToGame(
 			@PathVariable("id-player") int playerId,
@@ -70,6 +72,7 @@ public class DominoController {
 	 * @param request
 	 * @return the player's id, that will be necessary for all the future transactions
 	 */
+	@CrossOrigin
 	@RequestMapping("/connect/{id-player}/{email-player}/{name-player}")
 	public @ResponseBody boolean connectUserToGame(
 			@PathVariable("id-player") int playerId,
@@ -94,6 +97,7 @@ public class DominoController {
 	 * @param request
 	 * @return
 	 */
+	@CrossOrigin
 	@RequestMapping("/get-free-players")
 	public @ResponseBody String getFreePlayers(HttpServletRequest request){
 		try {
@@ -110,6 +114,7 @@ public class DominoController {
 	 * @param request
 	 * @return the game's id, that will be necessary for all the game transactions
 	 */
+	@CrossOrigin
 	@RequestMapping("/newgame/{id-game}/{id-player1}/{id-player2}")
 	public @ResponseBody boolean startNewGame(
 			@PathVariable("id-game") int gameId,
@@ -130,6 +135,7 @@ public class DominoController {
 		}
 	}
 	
+	@CrossOrigin
 	@RequestMapping("/endgame/{id-game}")
 	public @ResponseBody boolean endGame(
 			@PathVariable("id-game") int gameId,
@@ -158,6 +164,7 @@ public class DominoController {
 	 * @param player2
 	 * @param request
 	 */
+	@CrossOrigin
 	@RequestMapping("/get-pieces/{id-game}/{id-player}")
 	public @ResponseBody String getPieces(@PathVariable("id-game") int gameId, @PathVariable("id-player") int playerId, 
 			HttpServletRequest request){
@@ -183,6 +190,7 @@ public class DominoController {
 	/**
 	 * @param request
 	 */
+	@CrossOrigin
 	@RequestMapping("/get-last-played-piece/{id-game}")
 	public @ResponseBody String getLastPlayedPiece(@PathVariable("id-game") int gameId, 
 			HttpServletRequest request){
@@ -206,6 +214,7 @@ public class DominoController {
 	/**
 	 * @param request
 	 */
+	@CrossOrigin
 	@RequestMapping("/get-last-extreme-side/{id-game}")
 	public @ResponseBody String getLastExtremeSide(@PathVariable("id-game") int gameId, 
 			HttpServletRequest request){
@@ -234,8 +243,9 @@ public class DominoController {
 	 * @param gameId
 	 * @param playerId
 	 * @param request
-	 * @return pega o número de peças do jogador adversário
+	 * @return pega o nï¿½mero de peï¿½as do jogador adversï¿½rio
 	 */
+	@CrossOrigin
 	@RequestMapping("/get-num-tiles-enemy/{id-game}/{id-player}")
 	public @ResponseBody int getNumTilesEnemy(@PathVariable("id-game") int gameId,
 			@PathVariable("id-player") int playerId,
@@ -257,6 +267,7 @@ public class DominoController {
 	 * @param request
 	 * @return se a jogada foi bem sucedida
 	 */
+	@CrossOrigin
 	@RequestMapping("/play/{id-game}/{id-player}/{value-dead-end}/{value-extreme}/{extreme-side}")
 	public @ResponseBody boolean play(@PathVariable("id-game") int gameId,
 			@PathVariable("id-player") int playerId,
@@ -277,8 +288,9 @@ public class DominoController {
 	 * @param gameId
 	 * @param playerId
 	 * @param request
-	 * @return se o jogador já pode jogar, mesmo que comprando novas peças
+	 * @return se o jogador jï¿½ pode jogar, mesmo que comprando novas peï¿½as
 	 */
+	@CrossOrigin
 	@RequestMapping("/can-play-buying/{id-game}/{id-player}")
 	public @ResponseBody boolean canPlayBuying(@PathVariable("id-game") int gameId,
 			@PathVariable("id-player") int playerId,
@@ -295,8 +307,9 @@ public class DominoController {
 	 * @param gameId
 	 * @param playerId
 	 * @param request
-	 * @return se o jogador já pode jogar, sem comprar novas peças
+	 * @return se o jogador jï¿½ pode jogar, sem comprar novas peï¿½as
 	 */
+	@CrossOrigin
 	@RequestMapping("/can-play/{id-game}/{id-player}")
 	public @ResponseBody boolean canPlay(@PathVariable("id-game") int gameId,
 			@PathVariable("id-player") int playerId,
@@ -315,6 +328,7 @@ public class DominoController {
 	 * @param request
 	 * @return
 	 */
+	@CrossOrigin
 	@RequestMapping("/buy/{id-game}/{id-player}")
 	public @ResponseBody String buy(@PathVariable("id-game") int gameId,
 			@PathVariable("id-player") int playerId,
@@ -341,6 +355,7 @@ public class DominoController {
 	 * @param request
 	 * @return
 	 */
+	@CrossOrigin
 	@RequestMapping("/is-winner/{id-game}/{id-player}")
 	public @ResponseBody boolean isWinner(@PathVariable("id-game") int gameId,
 			@PathVariable("id-player") int playerId,
@@ -356,6 +371,7 @@ public class DominoController {
 	/**
 	 * @param request
 	 */
+	@CrossOrigin
 	@RequestMapping("/get-all-rankings")
 	public @ResponseBody String getAllRankings(HttpServletRequest request){
 		List<Ranking> lista;
@@ -378,6 +394,7 @@ public class DominoController {
 	 * @param request
 	 * @return
 	 */
+	@CrossOrigin
 	@RequestMapping("/update-ranking/{id-game}/{id-player}")
 	public @ResponseBody boolean updateRanking(@PathVariable("id-game") int gameId,
 			@PathVariable("id-player") int playerId,

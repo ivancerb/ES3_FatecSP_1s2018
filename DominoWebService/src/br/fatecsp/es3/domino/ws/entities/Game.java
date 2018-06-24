@@ -17,6 +17,14 @@ public class Game {
 	private int pieceExtreme = -1;
 	private String lastExtremeSide;
 	
+	public Game(Player player1, Player player2) {
+		this.player1 = player1;
+		this.player2 = player2;
+		this.board = new Board();
+		this.lastOneToPlayId = player1.getId();
+		this.randomGenerator = new Random();
+	}
+	
 	public Game(int id, Player player1, Player player2) {
 		this.id = id;
 		this.player1 = player1;

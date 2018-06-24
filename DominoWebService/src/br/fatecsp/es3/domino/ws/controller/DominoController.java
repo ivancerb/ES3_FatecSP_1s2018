@@ -135,6 +135,33 @@ public class DominoController {
 		}
 	}
 	
+	
+	/**
+	 * @param player1
+	 * @param player2
+	 * @param request
+	 * @return the game's id, that will be necessary for all the game transactions
+	 */
+	@CrossOrigin
+	@RequestMapping("/newgame/{id-player1}/{id-player2}")
+	public @ResponseBody boolean startNewGame(
+			@PathVariable("id-player1") int player1, 
+			@PathVariable("id-player2") int player2,
+			HttpServletRequest request){
+		try {
+			Game game = new Game(playersMap.get(player1), playersMap.get(player2));
+			if (!GameDataManager.checkGameExistence(game))
+				return false;
+			gamesMap.put(game.getId(), game);
+			freePlayersMap.remove(player1);
+			freePlayersMap.remove(player2);
+			return true;
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
 	@CrossOrigin
 	@RequestMapping("/endgame/{id-game}")
 	public @ResponseBody boolean endGame(
@@ -243,7 +270,7 @@ public class DominoController {
 	 * @param gameId
 	 * @param playerId
 	 * @param request
-	 * @return pega o n�mero de pe�as do jogador advers�rio
+	 * @return pega o numero de peças do jogador adversario
 	 */
 	@CrossOrigin
 	@RequestMapping("/get-num-tiles-enemy/{id-game}/{id-player}")
@@ -288,7 +315,7 @@ public class DominoController {
 	 * @param gameId
 	 * @param playerId
 	 * @param request
-	 * @return se o jogador j� pode jogar, mesmo que comprando novas pe�as
+	 * @return se o jogador ja pode jogar, mesmo que comprando novas pecas
 	 */
 	@CrossOrigin
 	@RequestMapping("/can-play-buying/{id-game}/{id-player}")

@@ -146,16 +146,17 @@ public class DominoController {
 	 */
 	@CrossOrigin
 	@RequestMapping("/newgame/{id-player1}/{id-player2}")
-	public @ResponseBody boolean startNewGame(
+	public @ResponseBody int startNewGame(
 			@PathVariable("id-player1") int player1, 
 			@PathVariable("id-player2") int player2,
 			HttpServletRequest request){
-				Game game = new Game(NEXTGAMEID, playersMap.get(player1), playersMap.get(player2));
+				int gameId = NEXTGAMEID;
+				Game game = new Game(gameId, playersMap.get(player1), playersMap.get(player2));
 				gamesMap.put(game.getId(), game);
 				freePlayersMap.remove(player1);
 				freePlayersMap.remove(player2);
 				NEXTGAMEID++;
-				return true;
+				return gameId;
 	}
 	
 	@CrossOrigin

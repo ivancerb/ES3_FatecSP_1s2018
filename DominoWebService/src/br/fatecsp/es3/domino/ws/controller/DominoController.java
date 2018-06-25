@@ -305,8 +305,10 @@ public class DominoController {
 			HttpServletRequest request){
 		Game game = gamesMap.get(gameId);
 		if (game != null) {
-			return game.canPlay(playerId, valueDeadEnd, valueExtreme) && 
-					game.play(playerId, extremeSide, valueDeadEnd, valueExtreme);
+//			return game.canPlay(playerId, valueDeadEnd, valueExtreme) && 
+//					game.play(playerId, extremeSide, valueDeadEnd, valueExtreme);
+			return 	game.play(playerId, extremeSide, valueDeadEnd, valueExtreme);
+			
 		} else {
 			return false;
 		}

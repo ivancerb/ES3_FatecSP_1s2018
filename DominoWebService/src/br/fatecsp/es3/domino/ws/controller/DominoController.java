@@ -237,6 +237,13 @@ public class DominoController {
 		return json;
 	}
 	
+	@CrossOrigin
+	@RequestMapping("/get-last-player/{gameId}")
+	public @ResponseBody int getLastPlayerId(@PathVariable int gameId, HttpServletRequest request){
+		Game game = gamesMap.get(gameId);
+		return game.getLastOneToPlayId();
+	}
+	
 	/**
 	 * @param request
 	 */

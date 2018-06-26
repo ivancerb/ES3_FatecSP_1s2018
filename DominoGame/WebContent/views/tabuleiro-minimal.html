@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dominó!</title>
+
+	<script>
+		//variaveis com infos do usuario
+		var id = 37;
+		var email = "ivanszcer@gmail.com";
+		var nome = "Ivan";
+		var senha = "1234";
+		
+		//variaveis com infos do jogo
+		var idOponente;
+		var idJogo;
+		
+		//variaveis para customizacao do tabuleiro
+		var skin = "Homer";
+		
+		//pecas
+		var pecasJogo = [];
+		
+ 		//peca selecionada
+		var selecionadaFaceA;
+		var selecionadaFaceB;
+		var numPecaSelecionada;
+		
+		//controle das jogadas do oponente - TODO pegar corretamente via AJAX
+		var lastId;
+		var podeJogar = true;
+		var ultimaPecaDoOponente;
+		var ultimoLado;
+		var numPecasOponente=7; //inicial
+		
+		
+		/* ****************************** */
+		/*     CONEXAO E INICIALIZACAO    */
+		/* ****************************** */
+		
+
+		//Conecta o usuario online
+		function connect(){
+			// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    				if(this.responseText=="true"){
+	    					//alert("Voce esta conectado");
+	    				}else{
+	    					alert("Problemas de conexao, tente novamente mais tarde.");
+	    				}
+	    			}else{
+	    				alert("Error at connect: " + this.status);
+	    			}
+	    		}
+	    	};
+	
+	    	var url="https://agora-vai.herokuapp.com/domino/connect/" + id + "/" + email + "/" + nome;
+	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+		}
+		
+		//Inicia um novo jogo com um dado usuario
+		function newgame(idAdv){
+			idOponente = idAdv;
+			// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    				idJogo = this.responseText;
+	    				getpieces();
+	    				alert("Seu jogo já vai comecar! O id de seu jogo é " + idJogo);
+	    			}else{
+	    				alert("Error at newgame: " + this.status);
+	    			}
+	    		}
+	    	};
+
+	    	var url="https://agora-vai.herokuapp.com/domino/newgame/" + id + "/" + idAdv;
+	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+		}
+		
+		//inicializa as pecas sorteadas na tela com as imagens correspondentes
+		function setupScreen(){
+			var imgPathPrefix = "../img/pecas/" + skin + "/";
+			var imgPathSuffix = ".png";
+			var imgName = "";
+			
+			var imgSrc = "";
+			if(pecasJogo.length!="undefined"){
+				for(i=0; i<pecasJogo.length; i++){
+					
+					imgSrc = 
+						imgPathPrefix + 
+						getImgName(pecasJogo[i].faceA, pecasJogo[i].faceB) + 
+				   		imgPathSuffix;
+
+				  	document.getElementById("jogador" + (i+1)).src = imgSrc;
+
+				}
+			}
+		}
+		
+		
+		function getImgName(faceA, faceB){
+			if(faceA > faceB) return faceA + "_" + faceB;
+			else return faceB + "_" + faceA;
+		}
+		
+		
+		//Obtem as pecas sorteadas para o jogador
+		function getpieces(){
+			// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    		        pecasJogo = JSON.parse(this.responseText);
+	    		       // var mensagem = "Suas peças:\n";
+	    				if(pecasJogo.length!="undefined"){
+	    					//for(i=0; i<pecasJogo.length; i++){
+		    				//	mensagem += "[" + pecasJogo[i].faceA + "_" + pecasJogo[i].faceB + "]";   				
+		    				//}
+	    					setupScreen();
+	    				}
+	    				//alert(mensagem);
+	    				//alert("Screen ok - APAGAR MSG");
+	    			}else{
+	    				alert("Error at getpieces: " + this.status);
+	    			}
+	    		}
+	    	};
+
+	    	
+	    	var url="https://agora-vai.herokuapp.com/domino/get-pieces/" + idJogo + "/" + id;
+	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+		}
+		
+		/* ********************************** */
+		/*    INTERACAO COM O WS - JOGADAS    */
+		/* ********************************** */
+		
+		function jogarAjax(extremo){
+			var sucesso = false;			
+			// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    				//alert("Jogada funcionou");
+	    				sucesso = this.responseText;
+	    			}else{
+	    				alert("Error at jogarAjax: " + this.status);
+	    			}
+	    		}
+	    	};
+
+  	    	var url="https://agora-vai.herokuapp.com/domino/play/" + idJogo + "/" + id + "/" + selecionadaFaceA + "/" + selecionadaFaceB + "/" + extremo; //TODO PARAMETRIZAR CORRETAMENTE
+ 	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+	    	return sucesso;		
+	    }
+		
+		function jogar(lado){
+// 			getUltimaJogada();//TODO remove
+// 			if(!podeJogar) {
+// 				alert("Aguarde seu adversario jogar!");
+// 				return;
+// 			}
+			if(!jogadaValida(selecionadaFaceA, selecionadaFaceB, lado)) return;
+			var sucesso = jogarAjax(selecionadaFaceA, selecionadaFaceB, lado);
+			//alert("Sucesso: " + sucesso);
+			//if(!sucesso) return;
+			removePecaJogador(numPecaSelecionada);
+			lastId=id;
+			podeJogar=false; //bloqueado ate o adversario jogar
+			ehVencedor();
+		}
+		
+		/* ********************************** */
+		/*          VALIDACAO JOGADAS         */
+		/* ********************************** */
+		
+		function jogadaValida(faceA, faceB, lado){
+			return true;    //TODO implementar validacao
+		}
+		
+		/* ********************************** */
+		/*        JOGADAS DO ADVERSARIO       */
+		/* ********************************** */
+		
+		//TESTE OK
+		//obtem numero de pecas do oponente
+		function getNumPecasOponente(){	    	
+	    	// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    			numPecasOponente = this.responseText;
+	    				alert(numPecasOponente);
+	    			}else{
+	    				alert("Error at getNumPecasOponente: " + this.status);
+	    			}
+	    		}
+	    	};
+
+  	    	var url="https://agora-vai.herokuapp.com/domino/get-num-tiles-enemy/" + idJogo + "/" + idOponente;
+	    	alert(url);
+
+	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+	    }
+		
+		
+		//mostra numPecasOponente pecas pretas com interrogacao na parte superior da tela
+		function mostrarPecasOponente(){
+			for(int=0;i<numPecasOponente; i++){
+			    document.getElementById("oponente" + (i+1)).style.display = "block";
+			}
+			for(int=numPecasOponente;i<14; i++){
+			    document.getElementById("oponente" + (i+1)).style.display = "none";
+			}
+		}
+		
+		//TESTE OK
+		//verifica se a ultima pessoa a jogar foi voce ou o adversario
+		function getUltimoAJogar(){	
+			alert("Entrei no ultimo a jogar");
+	    	// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    				lastId = this.responseText;
+	    				alert(lastId);
+	    			}else{
+	    				alert("Error at getUltimoAJogar: " + this.status);
+	    			}
+	    		}
+	    	};
+
+  	    	var url="https://agora-vai.herokuapp.com/domino/get-last-player/" + idJogo;
+	    	alert(url);
+  	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+	    	
+	    }
+		
+		//obtem a ultima peca jogada - seja do jogador ou seu adversario.
+		function getUltimaJogada(){	
+	    	// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    				ultimaPecaDoOponente = JSON.parse(this.responseText);
+	    				alert(ultimaPecaDoOponente.faceA + "," + ultimaPecaDoOponente.faceB);
+	    			}else{
+	    				alert("Error at getUltimaJogada: " + this.status);
+	    			}
+	    		}
+	    	};
+
+  	    	var url="https://agora-vai.herokuapp.com/domino/get-last-played-piece/" + idJogo;
+	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+	    	
+	    }
+		
+		//TEST OK
+		//conferir valores do WS para os lados
+		function getUltimoLado(){	
+	    	// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    				var lado = this.responseText;
+	    				if(lado == "A")  ultimoLado = 1;
+	    				if(lado == "B")  ultimoLado = 2;
+	    				if(lado == "AB") ultimoLado = 0;
+	    				alert("ultimoLado: " + ultimoLado);
+	    			}else{
+	    				alert("Error at getUltimoLado: " + this.status);
+	    			}
+	    		}
+	    	};
+
+  	    	var url="https://agora-vai.herokuapp.com/domino/get-last-extreme-side/" + idJogo;
+	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+	    	
+	    }
+		
+		function atualizaJogadaAdversarioNaTela(){
+			if(ultimoLado == 0){ //centro
+				colocaPrimeiraPecaNoMeioAdv(faceA, faceB); 
+			}
+			if(ultimoLado == 1){ //esquerda
+				colocaPecaNaEsquerdaAdv(faceA, faceB);
+			}
+			if(ultimoLado == 2){ //direita
+				colocaPecaNaDireitaAdv(faceA, faceB);
+			}
+		}
+		
+		//processa a jogada do adversario  //TODO fazer essa function ser rodada periodicamente para pegar o status do jogador
+		function processaJogadaAdversario(){
+			alert("entrei no processaJogadaAdversario com idJogo="+ idJogo);
+			if(idJogo=undefined)return; //antes do id do jogo ser setado
+			getUltimoAJogar();
+			if(lastId == idOponente){//o adversario jogou por ultimo?
+				lastId = idOponente; 
+				getUltimaJogada(); //obtem a jogada do adversario
+				getUltimoLado();   //obtem o lado que o adversario jogou, para atualizar a peca
+				atualizaJogadaAdversarioNaTela(); //coloca a peca no lugar correto do tabuleiro
+				podeJogar = true; //adversario jogou, e ja apareceu na tela; jogador pode jogar de novo
+				getNumPecasOponente(); //atualiza numero de pecas do adversario na tela //TODO isso realmente eh feito ou so o numero eh pego?
+			}
+		}
+		
+		
+		/* ********************************** */
+		/*        ENCERRAMENTO DO JOGO        */
+		/* ********************************** */
+		
+		function ehVencedor(){	    	
+	    	// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    				if(this.responseText=="true"){
+	    					alert("Voce venceu!!");
+	    				}
+	    			}else{
+	    				alert("Error at buy: " + this.status);
+	    			}
+	    		}
+	    	};
+
+  	    	var url="https://agora-vai.herokuapp.com/domino/is-winner/" + idJogo + "/" + id;
+	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+	    }
+		
+	</script>
+	
+
+	<script>
+		
+	/* ********************************** */
+	/*     COMPORTAMENTO DO TABULEIRO     */
+	/* ********************************** */
+	
+		//variaveis para controlar o comportamento visual do tabuleiro
+		var pecasJogadas = 0;
+		var primeira = true;
+		var segunda = false;
+ 		
+ 		function constroiPathPeca(){
+ 			var imgPathPrefix = "../img/pecas/" + skin + "/";
+			var imgPathSuffix = ".png";
+			var imgName = getImgName(selecionadaFaceA, selecionadaFaceB);
+			return imgPathPrefix + imgName + imgPathSuffix;
+ 		}
+		
+		function jogaPecaNaEsquerda(){
+			if(segunda){
+				deslocaPrimeiraPecaPraDireita();
+				desabilitaPecaDoMeio();
+				document.getElementById("esquerda").style.display = "block";
+				document.getElementById("direita").style.display = "block";
+				segunda=false; 
+				getUltimoAJogar(); //TODO remove for testing only
+				getUltimaJogada(); //TODO remove for testing only
+			}
+			jogar(1);
+		  	document.getElementById("esquerda").src = constroiPathPeca();
+			getUltimoLado();   //TODO remove for testing only
+		}
+		
+		function jogaPecaNaDireita(){
+			if(segunda){
+				deslocaPrimeiraPecaPraEsquerda();
+				desabilitaPecaDoMeio();
+				document.getElementById("esquerda").style.display = "block";
+				document.getElementById("direita").style.display = "block";
+				segunda=false; 
+			}
+			jogar(2);
+		  	document.getElementById("direita").src = constroiPathPeca();
+		}
+		
+		function colocaPrimeiraPecaNoMeio(){
+			jogar(0);
+		  	document.getElementById("meio").src = constroiPathPeca();
+		  	primeira = false; segunda = true; //proxima eh a segunda peca
+		}
+		
+		function deslocaPrimeiraPecaPraEsquerda(){
+		  	document.getElementById("esquerda").src = document.getElementById("meio").src;
+		}
+		
+		function deslocaPrimeiraPecaPraDireita(){
+		  	document.getElementById("direita").src = document.getElementById("meio").src;
+		}
+		
+		function desabilitaPecaDoMeio(){
+		  	document.getElementById("meio").src = "../img/reticencias.png";
+
+		}
+		
+		function setaPecaSelecionada(num){
+			selecionadaFaceA = pecasJogo[num-1].faceA;
+			selecionadaFaceB = pecasJogo[num-1].faceB;
+			numPecaSelecionada = num;
+			alert("Peca selecionada: [" + selecionadaFaceA + "," + selecionadaFaceB + "]");
+		}
+		
+		
+		/* ********************************** */
+		/*         PECAS DO ADVERSARIO        */   /* ----------------------------> TODO TESTAR */
+		/* ********************************** */
+		
+		function constroiPathPecaAdv(faceA, faceB){
+ 			var imgPathPrefix = "../img/pecas/" + skin + "/";
+			var imgPathSuffix = ".png";
+			var imgName = getImgName(faceA, faceB);
+			return imgPathPrefix + imgName + imgPathSuffix;
+ 		}
+		
+		function colocaPecaNaEsquerdaAdv(faceA, faceB){
+			if(segunda){
+				deslocaPrimeiraPecaPraDireita();
+				desabilitaPecaDoMeio();
+				document.getElementById("esquerda").style.display = "block";
+				document.getElementById("direita").style.display = "block";
+				segunda=false; 
+			}
+		  	document.getElementById("esquerda").src = constroiPathPecaAdv(faceA, faceB);
+		}
+		
+		function colocaPecaNaDireitaAdv(faceA, faceB){
+			if(segunda){
+				deslocaPrimeiraPecaPraEsquerda();
+				desabilitaPecaDoMeio();
+				document.getElementById("esquerda").style.display = "block";
+				document.getElementById("direita").style.display = "block";
+				segunda=false; 
+			}
+		  	document.getElementById("direita").src = constroiPathPecaAdv(faceA, faceB);
+		}
+		
+		function colocaPrimeiraPecaNoMeioAdv(faceA, faceB){
+			jogar(0);
+		  	document.getElementById("meio").src = constroiPathPecaAdv(faceA, faceB);
+		  	primeira = false; segunda = true; //proxima eh a segunda peca
+		}
+	
+		
+		function atualizaNumPecasOponente(num){ //TODO check duplicate? is being used?
+			var x = document.getElementById("jogador" + num);
+		    x.style.display = "none";
+		    var y = document.getElementById("botaojogador" + num);
+		    y.style.display = "none";
+		}
+		
+		
+	</script>
+	
+	<style>
+		.rotateimg270 {
+		  -webkit-transform:rotate(270deg);
+		  -moz-transform: rotate(270deg);
+		  -ms-transform: rotate(270deg);
+		  -o-transform: rotate(270deg);
+		  transform: rotate(270deg);
+		}
+
+
+		.resize {
+		    width:9.5%;
+		    height: auto;
+		}
+		
+		.resizeJogador {
+		    width:12%;
+		    height: auto;
+		}
+		
+		.resizeOponente {
+		    width:7%;
+		    height: auto;
+		}
+
+		
+	</style>
+	
+</head>
+<body onload="connect();newgame(40)">
+	<div id="pecas-oponente">
+		<img id="oponente1" style="z-index:1;position:absolute;margin-top:20%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:block;"  class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente2" style="z-index:1;position:absolute;margin-top:20%;margin-left:25%;margin-bottom:10%;margin-right:30%;display:block;"  class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente3" style="z-index:1;position:absolute;margin-top:20%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:block;"  class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente4" style="z-index:1;position:absolute;margin-top:20%;margin-left:45%;margin-bottom:10%;margin-right:30%;display:block;"  class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente5" style="z-index:1;position:absolute;margin-top:20%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:block;"  class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente6" style="z-index:1;position:absolute;margin-top:20%;margin-left:65%;margin-bottom:10%;margin-right:30%;display:block;"  class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente7" style="z-index:1;position:absolute;margin-top:20%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:block;"  class="resizeOponente" src="../img/black-domino.png"/>
+		
+		<img id="oponente8" style="z-index:1;position:absolute;margin-top:20%;margin-left:85%;margin-bottom:10%;margin-right:30%;display:block;"  class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente9" style="z-index:1;position:absolute;margin-top:20%;margin-left:95%;margin-bottom:10%;margin-right:30%;display:block;"  class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente10" style="z-index:1;position:absolute;margin-top:20%;margin-left:95%;margin-bottom:10%;margin-right:30%;display:block;"  class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente11" style="z-index:1;position:absolute;margin-top:20%;margin-left:95%;margin-bottom:10%;margin-right:30%;display:block;"  class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente12" style="z-index:1;position:absolute;margin-top:20%;margin-left:95%;margin-bottom:10%;margin-right:30%;display:block;"  class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente13" style="z-index:1;position:absolute;margin-top:20%;margin-left:95%;margin-bottom:10%;margin-right:30%;display:block;"  class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente14" style="z-index:1;position:absolute;margin-top:20%;margin-left:95%;margin-bottom:10%;margin-right:30%;display:block;"  class="resizeOponente" src="../img/black-domino.png"/>
+	</div>
+	<img style="z-index:-1;position:absolute;width:100%;height:160%;" src="../img/domino-background.png"/>
+	<img style="z-index:0;position:absolute;margin-top:14%;margin-left:10%;margin-bottom:10%;margin-right:10%;width:80%;height:120%;opacity: 0.8;" src="../img/table.jpg"/>
+	<div id="tabuleiro">
+		<img id="seta-esquerda" style="z-index:1;position:absolute;margin-top:43%;margin-left:10%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/setaesquerda.png" onclick="jogaPecaNaEsquerda()"/>
+		<img id="esquerda" style="z-index:1;position:absolute;margin-top:43%;margin-left:25%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-black-domino.png"/>
+		<img id="meio" style="z-index:1;position:absolute;margin-top:43%;margin-left:40%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/jogar.png" onclick="colocaPrimeiraPecaNoMeio()"/>
+		<img id="direita"style="z-index:1;position:absolute;margin-top:43%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-black-domino.png"/>
+		<img id="seta-direita" style="z-index:1;position:absolute;margin-top:43%;margin-left:70%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/setadireita.png" onclick="jogaPecaNaDireita()"/>
+	</div>
+	<div id="pecas-jogador">
+		<img id="jogador1" style="z-index:1;position:absolute;margin-top:60%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270" onclick=""/>
+		<img id="jogador2" style="z-index:1;position:absolute;margin-top:60%;margin-left:25%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270" onclick=""/>
+		<img id="jogador3" style="z-index:1;position:absolute;margin-top:60%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270" onclick=""/>
+		<img id="jogador4" style="z-index:1;position:absolute;margin-top:60%;margin-left:45%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270" onclick=""/>
+		<img id="jogador5" style="z-index:1;position:absolute;margin-top:60%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270" onclick=""/>
+		<img id="jogador6" style="z-index:1;position:absolute;margin-top:60%;margin-left:65%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270" onclick=""/>
+		<img id="jogador7" style="z-index:1;position:absolute;margin-top:60%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270" onclick=""/>
+	</div>
+	<div id="botao-pecas-jogador">
+		<input type="radio" name="pecaescolha" id="botaojogador1" style="z-index:1;position:absolute;margin-top:70%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeJogador" onclick="setaPecaSelecionada(1)"/>
+		<input type="radio" name="pecaescolha" id="botaojogador2" style="z-index:1;position:absolute;margin-top:70%;margin-left:25%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeJogador" onclick="setaPecaSelecionada(2)"/>
+		<input type="radio" name="pecaescolha" id="botaojogador3" style="z-index:1;position:absolute;margin-top:70%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeJogador" onclick="setaPecaSelecionada(3)"/>
+		<input type="radio" name="pecaescolha" id="botaojogador4" style="z-index:1;position:absolute;margin-top:70%;margin-left:45%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeJogador" onclick="setaPecaSelecionada(4)"/>
+		<input type="radio" name="pecaescolha" id="botaojogador5" style="z-index:1;position:absolute;margin-top:70%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeJogador" onclick="setaPecaSelecionada(5)"/>
+		<input type="radio" name="pecaescolha" id="botaojogador6" style="z-index:1;position:absolute;margin-top:70%;margin-left:65%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeJogador" onclick="setaPecaSelecionada(6)"/>
+		<input type="radio" name="pecaescolha" id="botaojogador7" style="z-index:1;position:absolute;margin-top:70%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeJogador" onclick="setaPecaSelecionada(7)"/>
+		
+		<input type="radio" name="pecaescolha" id="botaojogador8" style="z-index:1;position:absolute;margin-top:70%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeJogador" onclick=""/>
+		<input type="radio" name="pecaescolha" id="botaojogador9" style="z-index:1;position:absolute;margin-top:70%;margin-left:25%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeJogador" onclick=""/>
+		<input type="radio" name="pecaescolha" id="botaojogador10" style="z-index:1;position:absolute;margin-top:70%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeJogador" onclick=""/>
+		<input type="radio" name="pecaescolha" id="botaojogador11" style="z-index:1;position:absolute;margin-top:70%;margin-left:45%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeJogador" onclick=""/>
+		<input type="radio" name="pecaescolha" id="botaojogador12" style="z-index:1;position:absolute;margin-top:70%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeJogador" onclick=""/>
+		<input type="radio" name="pecaescolha" id="botaojogador13" style="z-index:1;position:absolute;margin-top:70%;margin-left:65%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeJogador" onclick=""/>
+		<input type="radio" name="pecaescolha" id="botaojogador14" style="z-index:1;position:absolute;margin-top:70%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeJogador" onclick=""/>
+	</div>
+	<div id="botao-comprar">
+		<img style="z-index:1;position:absolute;margin-top:70%;margin-left:85%;margin-bottom:10%;margin-right:30%" src="../img/comprar.png"/>
+	</div>
+</body>
+</html>

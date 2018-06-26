@@ -16,8 +16,61 @@
 		var idOponente;
 		var idJogo;
 		
+		//controle das jogadas do oponente
+		var lastId;
+		var podeJogar = true;
+		var ultimaPecaDoOponente;
+		var ultimoLado;
+		
+		//variaveis para customizacao do tabuleiro
+		var skin = "Homer";
+		
 		//pecas
 		var pecasJogo = [];
+		
+		//peca selecionada
+		var selecionadaFaceA;
+		var selecionadaFaceB;
+		
+		//ids das pecas dos extremos horario e antihorario
+		var extremoHorarioId;
+		var extremoAntiHorarioId;
+		
+		
+		function setupScreen(){
+			var imgPathPrefix = "../img/pecas/" + skin + "/";
+			var imgPathSuffix = ".png";
+			var imgName = "";
+			
+			var imgSrc = "";
+			if(pecasJogo.length!="undefined"){
+				for(i=0; i<pecasJogo.length; i++){
+					
+					imgSrc = 
+						imgPathPrefix + 
+						getImgName(pecasJogo[i].faceA, pecasJogo[i].faceB) + 
+				   		imgPathSuffix;
+					
+					//alert("antes do onclick value");
+					var onclickValue = "jogar('jogador" + (i+1) + "'," + pecasJogo[i].faceA + "," + pecasJogo[i].faceB + ")";
+					//alert(onclickValue);
+
+				  	document.getElementById("jogador" + (i+1)).src = imgSrc;
+				   // TODO chnged to radio button document.getElementById("jogador" + (i+1)).setAttribute("onclick",onclickValue);    
+				  						
+					//alert("apos setar onclick value");
+
+				}
+			}
+			//alert("Screen set up correctly");
+		}
+		
+		
+		
+		function getImgName(faceA, faceB){
+			if(faceA > faceB) return faceA + "_" + faceB;
+			else return faceB + "_" + faceA;
+		}
 		
 		//Conecta o usuario online
 		function connect(){
@@ -28,12 +81,12 @@
 	    		if (this.readyState == 4) {
 	    			if(this.status == 200){
 	    				if(this.responseText=="true"){
-	    					alert("Voce esta conectado");
+	    					//alert("Voce esta conectado");
 	    				}else{
 	    					alert("Problemas de conexao, tente novamente mais tarde.");
 	    				}
 	    			}else{
-	    				alert("Error: " + this.status);
+	    				alert("Error at connect: " + this.status);
 	    			}
 	    		}
 	    	};
@@ -46,7 +99,8 @@
 		}
 		
 		//Inicia um novo jogo com um dado usuario
-		function newgame(idOponente){
+		function newgame(idAdv){
+			idOponente = idAdv; //salva o id do adversario
 			// Set up the request.
 	    	var xhr = new XMLHttpRequest();
 	    	// When the response arrives
@@ -57,17 +111,20 @@
 	    				getpieces();
 	    				alert("Seu jogo já vai comecar! O id de seu jogo é " + idJogo);
 	    			}else{
-	    				alert("Error: " + this.status);
+	    				alert("Error at newgame: " + this.status);
 	    			}
 	    		}
 	    	};
 
 	    	var url="https://agora-vai.herokuapp.com/domino/newgame/" + id + "/" + idOponente;
+	    	alert(url);
 	    	// Open the connection.
 	    	xhr.open('GET', url, true);
 	    	// Send the Data.
 	    	xhr.send();
 		}
+		
+		
 		
 		//Obtem as pecas sorteadas para o jogador
 		function getpieces(){
@@ -77,16 +134,18 @@
 	    	xhr.onreadystatechange = function() {
 	    		if (this.readyState == 4) {
 	    			if(this.status == 200){
-	    		        var pecasJogo = JSON.parse(this.responseText);
-	    		        var mensagem = "Suas peças:\n";
+	    		        pecasJogo = JSON.parse(this.responseText);
+	    		       // var mensagem = "Suas peças:\n";
 	    				if(pecasJogo.length!="undefined"){
-	    					for(i=0; i<pecasJogo.length; i++){
-		    					mensagem += "[" + pecasJogo[i].faceA + "-" + pecasJogo[i].faceB + "]";   				
-		    				}
+	    					//for(i=0; i<pecasJogo.length; i++){
+		    				//	mensagem += "[" + pecasJogo[i].faceA + "_" + pecasJogo[i].faceB + "]";   				
+		    				//}
+	    					setupScreen();
 	    				}
-	    				alert(mensagem);
+	    				//alert(mensagem);
+	    				//alert("Screen ok - APAGAR MSG");
 	    			}else{
-	    				alert("Error: " + this.status);
+	    				alert("Error at getpieces: " + this.status);
 	    			}
 	    		}
 	    	};
@@ -98,27 +157,262 @@
 	    	// Send the Data.
 	    	xhr.send();
 		}
+		
+
+		function jogadaValida(faceA, faceB, horario){
+			return true;    //TODO implementar validacao da jogada
+		}
+		
+		function jogarAjax(faceA, faceB, extremo){
+			var sucesso = false;			
+			// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    				//alert("Jogada funcionou");
+	    				sucesso = this.responseText;
+	    			}else{
+	    				alert("Error at jogarAjax: " + this.status);
+	    			}
+	    		}
+	    	};
+
+  	    	var url="https://agora-vai.herokuapp.com/domino/play/" + idJogo + "/" + id + "/" + faceA + "/" + faceB + "/" + "A"; //TODO PARAMETRIZAR CORRETAMENTE
+ 	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+	    	return sucesso;		
+	    }
+		
+		function jogar(horario, faceA, faceB){
+// 			getUltimaJogada();//TODO remove
+// 			if(!podeJogar) {
+// 				alert("Aguarde seu adversario jogar!");
+// 				return;
+// 			}
+			if(!jogadaValida(faceA, faceB, horario)) return;
+			var sucesso = jogarAjax(faceA, faceB, "A");
+			//alert("Sucesso: " + sucesso);
+			//if(!sucesso) return;
+			apareceNaTela(faceA, faceB, false); //TODO parametrizar o lado em que vai colocar
+			removePecaJogador(idPecaJogador);
+			lastId=id;
+			podeJogar=false; //bloqueado ate o adversario jogar
+			ehVencedor();
+		}
+		
+		function comprar(){	    	
+	    	// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    				pecaComprada = JSON.parse(this.responseText);
+	    				pecasJogo.push(pecaComprada);
+	    			}else{
+	    				alert("Error at buy: " + this.status);
+	    			}
+	    		}
+	    	};
+
+  	    	var url="https://agora-vai.herokuapp.com/domino/buy/" + idJogo + "/" + id;
+  	    	alert(url);
+	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+	    }
+		
+		function ehVencedor(){	    	
+	    	// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    				if(this.responseText=="true"){
+	    					alert("Voce venceu!!");
+	    				}
+	    			}else{
+	    				alert("Error at buy: " + this.status);
+	    			}
+	    		}
+	    	};
+
+  	    	var url="https://agora-vai.herokuapp.com/domino/is-winner/" + idJogo + "/" + id;
+	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+	    }
+		
+		function getNumPecasOponente(){	    	
+	    	// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    			numPecasOponente = this.responseText;
+	    				alert(numPecasOponente);
+	    			}else{
+	    				alert("Error at getNumPecasOponente: " + this.status);
+	    			}
+	    		}
+	    	};
+
+  	    	var url="https://agora-vai.herokuapp.com/domino/get-num-tiles-enemy/" + idJogo + "/" + idOponente;
+	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+	    }
+		
+		function getUltimoAJogar(){	
+			alert("Entrei no ultimo a jogar");
+	    	// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    				lastId = this.responseText;
+	    				alert(lastId);
+	    			}else{
+	    				alert("Error at getUltimoAJogar: " + this.status);
+	    			}
+	    		}
+	    	};
+
+  	    	var url="https://agora-vai.herokuapp.com/domino/get-last-player/" + idJogo;
+	    	alert(url);
+  	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+	    	
+	    }
+		
+		function getUltimaJogada(){	
+	    	// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    				ultimaPecaDoOponente = JSON.parse(this.responseText);
+	    				alert(ultimaPecaDoOponente.faceA + "," + ultimaPecaDoOponente.faceB);
+	    			}else{
+	    				alert("Error at getUltimaJogada: " + this.status);
+	    			}
+	    		}
+	    	};
+
+  	    	var url="https://agora-vai.herokuapp.com/domino/get-last-played-piece/" + idJogo;
+	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+	    	
+	    }
+		
+		function getUltimoLado(){	
+	    	// Set up the request.
+	    	var xhr = new XMLHttpRequest();
+	    	// When the response arrives
+	    	xhr.onreadystatechange = function() {
+	    		if (this.readyState == 4) {
+	    			if(this.status == 200){
+	    				ultimoLado = this.responseText;
+	    				alert(ultimoLado);
+	    			}else{
+	    				alert("Error at getUltimoLado: " + this.status);
+	    			}
+	    		}
+	    	};
+
+  	    	var url="https://agora-vai.herokuapp.com/domino/get-last-extreme-side/" + idJogo;
+	    	// Open the connection.
+	    	xhr.open('GET', url, true);
+	    	// Send the Data.
+	    	xhr.send();
+	    	
+	    }
+		
+		function mostrarPecasOponente(numPecas){
+			for(int=0;i<numPecasOponente; i++){
+			    document.getElementById("oponente" + (i+1)).style.display = "block";
+			}
+			for(int=numPecasOponente;i<14; i++){
+			    document.getElementById("oponente" + (i+1)).style.display = "none";
+			}
+		}
+		
+		function getJogadaAdversario(){
+			alert("entrei no jogada adversario com idJogo="+ idJogo);
+			if(idJogo=undefined)return; //antes do id do jogo ser setado
+			getUltimoAJogar();
+			if(lastId == idOponente){
+				lastId = idOponente;
+				getUltimaJogada();
+				getUltimoLado();
+				apareceNaTela(faceA, faceB, isHorario(ultimoLado)); 		
+				podeJogar = true; //adversario jogou, e ja apareceu na tela; jogador pode jogar de novo
+				getNumPecasOponente();
+				
+			}
+		}
+		
+		
+		
+	//	var run = setInterval(getJogadaAdversario, 10000);
+		
+		
+	function setaPecaSelecionada(num){
+		selecionadaFaceA = pecasJogo[num-1].faceA;
+		selecionadaFaceB = pecasJogo[num-1].faceB;
+		alert("Peca selecionada: [" + selecionadaFaceA + "," + selecionadaFaceB + "]");
+	}
+		
+	
+
 	</script>
 	
 	<!-- Comportamento visual do jogo -->
 	<script>
+		
+		
 		//variaveis para controlar o comportamento visual do tabuleiro
-		var i=0;
+		var antihorarioi=0;
 		var horarioi = 0;
 		var pecasJogadas = 0;
 		var primeira = true;
  		var numPecasOponente = 7;
- 		var horario = true;
+ 		var horario = false;
 		
 // 		var pecas[] = {}
 		
-		function apareceNaTela(horario){
-			//alert("entrou na function com valor horario="+ horario);
+		
+		
+		function apareceNaTela(faceA, faceB, horario){ //TODO mudar para aparecer a PECA CORRETA NO TABULEIRO!!!!!
+			var imgPathPrefix = "../img/pecas/" + skin + "/";
+			var imgPathSuffix = ".png";
+			var imgName = "";
+			
 			if(primeira){
 				//alert("primeira peca!");
-				i++;
+				antihorarioi++;
 				horarioi++;
 			    var x = document.getElementById("peca1");
+			    var imgSrc = 
+					imgPathPrefix + 
+					getImgName(faceA, faceB) + 
+			   		imgPathSuffix;
+			    x.src=imgSrc;
 			    x.style.display = "block";
 			    primeira=false;
 			   
@@ -129,113 +423,257 @@
 					horarioi++;
 					var idPeca = "pecahorario" + horarioi;
 				    var x = document.getElementById(idPeca);
+				    var imgSrc = 
+						imgPathPrefix + 
+						getImgName(faceA, faceB) + 
+				   		imgPathSuffix;
+				    x.src=imgSrc;
 				    x.style.display = "block";
 				    
 				}else{
 					//alert("antihorario!");
-					i++;
-					var idPeca = "peca" + i;
+					antihorarioi++;
+					var idPeca = "peca" + antihorarioi;
 				    var x = document.getElementById(idPeca);
-				    x.style.display = "block";
+				    var imgSrc = 
+						imgPathPrefix + 
+						getImgName(faceA, faceB) + 
+				   		imgPathSuffix;
+				    x.src=imgSrc;
+				    x.style.display = "block";			
 				}
 				
 			}
+			
+			//onclick nos extremos
+			//valor da function
+			//A. Extremo horario
+			var onclickValue = "jogar(" + true + "," + pecasJogo[i].faceA + "," + pecasJogo[i].faceB + ")";
+			document.getElementById("pecahorario" + horarioi).setAttribute("onclick",onclickValue);    
+			//B. Extremo antihorario
+			onclickValue = "jogar(" + false + "," + pecasJogo[i].faceA + "," + pecasJogo[i].faceB + ")";
+			document.getElementById("peca" + antihorarioi).setAttribute("onclick",onclickValue);    
+
 		    pecasJogadas++;
 		}
+		
+		function jogarPrimeira(){
+			jogar(selecionadaFaceA, selecionadaFaceB, true);
+		}
+		
+		function removePecaJogador(id){
+			var x = document.getElementById(id);
+		    //x.style.display = "none";
+		    x.parentNode.removeChild(x);
+		}
+		
+		function adicionaPecaJogador(id){
+			var x = document.getElementById(id);
+		    //x.style.display = "none";
+		    x.parentNode.addChild(x);
+		}
+		
+		
+
+		
+//  		function removePecaOponente(){
+// 			var x = document.getElementById("oponente" + numPecasOponente);
+// 		    //x.style.display = "none";
+// 		    x.parentNode.removeChild(x);
+			
+//  		}
+		
+// 		function jogarAjax(faceA, faceB, extremo){ //TODO validar lado da peca e extremo
+// 			var sucesso = false;			
+// 			// Set up the request.
+// 	    	var xhr = new XMLHttpRequest();
+// 	    	// When the response arrives
+// 	    	xhr.onreadystatechange = function() {
+// 	    		if (this.readyState == 4) {
+// 	    			if(this.status == 200){
+// 	    				alert("Jogada funcionou");
+// 	    				sucesso = this.responseText;
+// 	    			}else{
+// 	    				alert("Error at jogarAjax: " + this.status);
+// 	    			}
+// 	    		}
+// 	    	};
+
+// 	    	var url="https://agora-vai.herokuapp.com/domino/play/" + idJogo + "/" id + "/" + faceA + "/" + face B + "/" "A"; //TODO PARAMETRIZAR CORRETAMENTE
+// 	    	// Open the connection.
+// 	    	xhr.open('GET', url, true);
+// 	    	// Send the Data.
+// 	    	xhr.send();
+// 	    	return sucesso;
+// 		}
+		
+		function isHorario(extremo){
+			if(extremo=="A") return true;
+			else return false;
+		}
+		
+		
+		function obtemExtremo(horario){
+			if(horario) return "A";
+			else return "B";
+		}
+		
+		
 	</script>
+	
+	<style>
+		.rotateimg270 {
+		  -webkit-transform:rotate(270deg);
+		  -moz-transform: rotate(270deg);
+		  -ms-transform: rotate(270deg);
+		  -o-transform: rotate(270deg);
+		  transform: rotate(270deg);
+		}
+
+
+		.resize {
+		    width:9.5%;
+		    height: auto;
+		}
+		
+		.resizeJogador {
+		    width:12%;
+		    height: auto;
+		}
+		
+		.resizeOponente {
+		    width:5%;
+		    height: auto;
+		}
+
+		
+	</style>
 	
 </head>
 <body onload="connect();newgame(40)">
 	<div id="pecas-oponente">
-		<img id="oponente1" style="z-index:1;position:absolute;margin-top:2%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>
-		<img id="oponente2" style="z-index:1;position:absolute;margin-top:2%;margin-left:25%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>
-		<img id="oponente3" style="z-index:1;position:absolute;margin-top:2%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>
-		<img id="oponente4" style="z-index:1;position:absolute;margin-top:2%;margin-left:45%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>
-		<img id="oponente5" style="z-index:1;position:absolute;margin-top:2%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>
-		<img id="oponente6" style="z-index:1;position:absolute;margin-top:2%;margin-left:65%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>
-		<img id="oponente7" style="z-index:1;position:absolute;margin-top:2%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png"/>
+		<img id="oponente1" style="z-index:1;position:absolute;margin-top:2%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente2" style="z-index:1;position:absolute;margin-top:2%;margin-left:21%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente3" style="z-index:1;position:absolute;margin-top:2%;margin-left:27%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente4" style="z-index:1;position:absolute;margin-top:2%;margin-left:33%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente5" style="z-index:1;position:absolute;margin-top:2%;margin-left:39%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente6" style="z-index:1;position:absolute;margin-top:2%;margin-left:45%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente7" style="z-index:1;position:absolute;margin-top:2%;margin-left:51%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeOponente" src="../img/black-domino.png"/>
+	
+		<img id="oponente8" style="z-index:1;position:absolute;margin-top:2%;margin-left:57%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente9" style="z-index:1;position:absolute;margin-top:2%;margin-left:63%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente10" style="z-index:1;position:absolute;margin-top:2%;margin-left:69%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente11" style="z-index:1;position:absolute;margin-top:2%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente12" style="z-index:1;position:absolute;margin-top:2%;margin-left:81%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente13" style="z-index:1;position:absolute;margin-top:2%;margin-left:87%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeOponente" src="../img/black-domino.png"/>
+		<img id="oponente14" style="z-index:1;position:absolute;margin-top:2%;margin-left:93%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeOponente" src="../img/black-domino.png"/>
 	</div>
 	<img style="z-index:-1;position:absolute;width:100%;height:160%;" src="../img/domino-background.png"/>
 	<img style="z-index:0;position:absolute;margin-top:14%;margin-left:10%;margin-bottom:10%;margin-right:10%;width:80%;height:120%;opacity: 0.8;" src="../img/table.jpg"/>
 	<div id="tabuleiro">
 		<!--  horizontais na parte de baixo -->
-		<img id="peca28" style="z-index:1;position:absolute;margin-top:55%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca27" style="z-index:1;position:absolute;margin-top:55%;margin-left:23%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca26" style="z-index:1;position:absolute;margin-top:55%;margin-left:31%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca25" style="z-index:1;position:absolute;margin-top:55%;margin-left:39%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca24" style="z-index:1;position:absolute;margin-top:55%;margin-left:47%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca23" style="z-index:1;position:absolute;margin-top:55%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca22" style="z-index:1;position:absolute;margin-top:55%;margin-left:63%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca21" style="z-index:1;position:absolute;margin-top:55%;margin-left:71%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca28" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:19%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca27" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:27%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca26" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca25" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:43%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca24" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:51%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca23" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:59%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca22" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:67%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca21" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
 		<!--  verticais na parte direita -->
-		<img id="peca20" style="z-index:1;position:absolute;margin-top:47%;margin-left:75%;margin-bottom:18%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
-		<img id="peca19" style="z-index:1;position:absolute;margin-top:39%;margin-left:75%;margin-bottom:26%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
-		<img id="peca18" style="z-index:1;position:absolute;margin-top:31%;margin-left:75%;margin-bottom:34%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
-		<img id="peca17" style="z-index:1;position:absolute;margin-top:23%;margin-left:75%;margin-bottom:42%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="peca20" class="rotateimg270 resize" style="z-index:1;position:absolute;margin-top:45%;margin-left:77%;margin-bottom:18%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="peca19" class="rotateimg270 resize" style="z-index:1;position:absolute;margin-top:37%;margin-left:77%;margin-bottom:26%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="peca18" class="rotateimg270 resize" style="z-index:1;position:absolute;margin-top:29%;margin-left:77%;margin-bottom:34%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="peca17" class="rotateimg270 resize" style="z-index:1;position:absolute;margin-top:21%;margin-left:77%;margin-bottom:42%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
 		<!--  horizontais na parte superior -->
-		<img id="peca9" style="z-index:1;position:absolute;margin-top:19%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca10" style="z-index:1;position:absolute;margin-top:19%;margin-left:23%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca11" style="z-index:1;position:absolute;margin-top:19%;margin-left:31%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca12" style="z-index:1;position:absolute;margin-top:19%;margin-left:39%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca13" style="z-index:1;position:absolute;margin-top:19%;margin-left:47%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca14" style="z-index:1;position:absolute;margin-top:19%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca15" style="z-index:1;position:absolute;margin-top:19%;margin-left:63%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca16" style="z-index:1;position:absolute;margin-top:19%;margin-left:71%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca9"  class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca10" class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:23%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca11" class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:31%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca12" class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:39%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca13" class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:47%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca14" class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca15" class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:63%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca16" class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:71%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
 		<!--  verticais na parte esquerda -->
-		<img id="peca8" style="z-index:1;position:absolute;margin-top:23%;margin-left:15%;margin-bottom:18%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
-		<img id="peca7" style="z-index:1;position:absolute;margin-top:31%;margin-left:15%;margin-bottom:26%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
-		<img id="peca6" style="z-index:1;position:absolute;margin-top:39%;margin-left:15%;margin-bottom:34%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="peca8" class="rotateimg270 resize" style="z-index:1;position:absolute;margin-top:25.3%;margin-left:12.7%;margin-bottom:21%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="peca7" class="rotateimg270 resize" style="z-index:1;position:absolute;margin-top:33.3%;margin-left:12.7%;margin-bottom:29%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="peca6" class="rotateimg270 resize" style="z-index:1;position:absolute;margin-top:41.3%;margin-left:12.7%;margin-bottom:37%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
 		<!--  horizontais na parte do meio -->
-		<img id="peca5" style="z-index:1;position:absolute;margin-top:43%;margin-left:19%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca4" style="z-index:1;position:absolute;margin-top:43%;margin-left:27%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca3" style="z-index:1;position:absolute;margin-top:43%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca2" style="z-index:1;position:absolute;margin-top:43%;margin-left:43%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="peca1" style="z-index:1;position:absolute;margin-top:43%;margin-left:51%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca5" class="resize" style="z-index:1;position:absolute;margin-top:43%;margin-left:19%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca4" class="resize" style="z-index:1;position:absolute;margin-top:43%;margin-left:27%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca3" class="resize" style="z-index:1;position:absolute;margin-top:43%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca2" class="resize" style="z-index:1;position:absolute;margin-top:43%;margin-left:43%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="peca1" class="resize" style="z-index:1;position:absolute;margin-top:43%;margin-left:51%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/black-domino.png" onclick="jogarPrimeira()"/>
 		<!-- SENTIDO HORARIO -->
 		<!--  horario - horizontais na parte do meio -->
-		<img id="pecahorario2" style="z-index:1;position:absolute;margin-top:43%;margin-left:59%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario3" style="z-index:1;position:absolute;margin-top:43%;margin-left:67%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario4" style="z-index:1;position:absolute;margin-top:43%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario2" class="resize" style="z-index:1;position:absolute;margin-top:43%;margin-left:59%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario3" class="resize" style="z-index:1;position:absolute;margin-top:43%;margin-left:67%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario4" class="resize" style="z-index:1;position:absolute;margin-top:43%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
 		<!--  horario - verticais à esquerda -->
-		<img id="pecahorario5" style="z-index:1;position:absolute;margin-top:35%;margin-left:79%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
-		<img id="pecahorario6" style="z-index:1;position:absolute;margin-top:27%;margin-left:79%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
-		<img id="pecahorario7" style="z-index:1;position:absolute;margin-top:19%;margin-left:79%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="pecahorario5" class="rotateimg270 resize" style="z-index:1;position:absolute;margin-top:41.3%;margin-left:81%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="pecahorario6" class="rotateimg270 resize" style="z-index:1;position:absolute;margin-top:33.3%;margin-left:81%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="pecahorario7" class="rotateimg270 resize" style="z-index:1;position:absolute;margin-top:25.3%;margin-left:81%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
 		<!--  horario - horizontais ao topo -->
-		<img id="pecahorario15" style="z-index:1;position:absolute;margin-top:19%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario14" style="z-index:1;position:absolute;margin-top:19%;margin-left:23%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario13" style="z-index:1;position:absolute;margin-top:19%;margin-left:31%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario12" style="z-index:1;position:absolute;margin-top:19%;margin-left:39%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario11" style="z-index:1;position:absolute;margin-top:19%;margin-left:47%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario10" style="z-index:1;position:absolute;margin-top:19%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario9" style="z-index:1;position:absolute;margin-top:19%;margin-left:63%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario8" style="z-index:1;position:absolute;margin-top:19%;margin-left:71%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario15" class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:23%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario14" class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:31%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario13" class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:39%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario12" class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:47%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario11" class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario10" class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:63%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario9"  class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:71%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario8"  class="resize" style="z-index:1;position:absolute;margin-top:19%;margin-left:79%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
 		<!--  horario - verticais à esquerda -->
-		<img id="pecahorario16" style="z-index:1;position:absolute;margin-top:23%;margin-left:15%;margin-bottom:18%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
-		<img id="pecahorario17" style="z-index:1;position:absolute;margin-top:31%;margin-left:15%;margin-bottom:26%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
-		<img id="pecahorario18" style="z-index:1;position:absolute;margin-top:39%;margin-left:15%;margin-bottom:34%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
-		<img id="pecahorario19" style="z-index:1;position:absolute;margin-top:47%;margin-left:15%;margin-bottom:26%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="pecahorario16" class="rotateimg270 resize" style="z-index:1;position:absolute;margin-top:21%;margin-left:16.7%;margin-bottom:18%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="pecahorario17" class="rotateimg270 resize" style="z-index:1;position:absolute;margin-top:29%;margin-left:16.7%;margin-bottom:26%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="pecahorario18" class="rotateimg270 resize" style="z-index:1;position:absolute;margin-top:37%;margin-left:16.7%;margin-bottom:34%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
+		<img id="pecahorario19" class="rotateimg270 resize" style="z-index:1;position:absolute;margin-top:45%;margin-left:16.7%;margin-bottom:26%;margin-right:30%;display:none;" src="../img/small-domino-piece.png"/>
 		<!--  horario - horizontais embaixo -->
-		<img id="pecahorario20" style="z-index:1;position:absolute;margin-top:55%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario21" style="z-index:1;position:absolute;margin-top:55%;margin-left:23%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario22" style="z-index:1;position:absolute;margin-top:55%;margin-left:31%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario23" style="z-index:1;position:absolute;margin-top:55%;margin-left:39%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario24" style="z-index:1;position:absolute;margin-top:55%;margin-left:47%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario25" style="z-index:1;position:absolute;margin-top:55%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario26" style="z-index:1;position:absolute;margin-top:55%;margin-left:63%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario27" style="z-index:1;position:absolute;margin-top:55%;margin-left:71%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
-		<img id="pecahorario28" style="z-index:1;position:absolute;margin-top:55%;margin-left:79%;margin-bottom:34%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario20" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:18.7%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario21" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:26.7%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario22" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:34.7%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario23" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:42.7%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario24" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:50.7%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario25" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:58.7%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario26" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:66.7%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario27" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:74.7%;margin-bottom:10%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
+		<img id="pecahorario28" class="resize" style="z-index:1;position:absolute;margin-top:51%;margin-left:82.7%;margin-bottom:34%;margin-right:30%;display:none;" src="../img/horiz-small-domino-piece.png"/>
 	</div>
 	<div id="pecas-jogador">
-		<img id="jogador1" style="z-index:1;position:absolute;margin-top:60%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" onclick="apareceNaTela(true)"/>
-		<img id="jogador2" style="z-index:1;position:absolute;margin-top:60%;margin-left:25%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" onclick="apareceNaTela(false)"/>
-		<img id="jogador3" style="z-index:1;position:absolute;margin-top:60%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" onclick="apareceNaTela(true)"/>
-		<img id="jogador4" style="z-index:1;position:absolute;margin-top:60%;margin-left:45%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" onclick="apareceNaTela(false)"/>
-		<img id="jogador5" style="z-index:1;position:absolute;margin-top:60%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" onclick="apareceNaTela(true)"/>
-		<img id="jogador6" style="z-index:1;position:absolute;margin-top:60%;margin-left:65%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" onclick="apareceNaTela(false)"/>
-		<img id="jogador7" style="z-index:1;position:absolute;margin-top:60%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" onclick="apareceNaTela(true)"/>
+		<img id="jogador1" style="z-index:1;position:absolute;margin-top:60%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270 resizeJogador" onclick=""/>
+		<img id="jogador2" style="z-index:1;position:absolute;margin-top:60%;margin-left:25%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270 resizeJogador" onclick=""/>
+		<img id="jogador3" style="z-index:1;position:absolute;margin-top:60%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270 resizeJogador" onclick=""/>
+		<img id="jogador4" style="z-index:1;position:absolute;margin-top:60%;margin-left:45%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270 resizeJogador" onclick=""/>
+		<img id="jogador5" style="z-index:1;position:absolute;margin-top:60%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270 resizeJogador" onclick=""/>
+		<img id="jogador6" style="z-index:1;position:absolute;margin-top:60%;margin-left:65%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270 resizeJogador" onclick=""/>
+		<img id="jogador7" style="z-index:1;position:absolute;margin-top:60%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270 resizeJogador" onclick=""/>
+		
+<!-- 		<img id="jogador8" style="z-index:1;position:absolute;margin-top:60%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270 resizeJogador" onclick=""/> -->
+<!-- 		<img id="jogador9" style="z-index:1;position:absolute;margin-top:60%;margin-left:25%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270 resizeJogador" onclick=""/> -->
+<!-- 		<img id="jogador10" style="z-index:1;position:absolute;margin-top:60%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270 resizeJogador" onclick=""/> -->
+<!-- 		<img id="jogador11" style="z-index:1;position:absolute;margin-top:60%;margin-left:45%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270 resizeJogador" onclick=""/> -->
+<!-- 		<img id="jogador12" style="z-index:1;position:absolute;margin-top:60%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270 resizeJogador" onclick=""/> -->
+<!-- 		<img id="jogador13" style="z-index:1;position:absolute;margin-top:60%;margin-left:65%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270 resizeJogador" onclick=""/> -->
+<!-- 		<img id="jogador14" style="z-index:1;position:absolute;margin-top:60%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:block;" src="../img/domino-piece.png" class="rotateimg270 resizeJogador" onclick=""/> -->
+	</div>
+	<div id="botao-pecas-jogador">
+		<input type="radio" name="pecaescolha" id="botaojogador1" style="z-index:1;position:absolute;margin-top:70%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeJogador" onclick="setaPecaSelecionada(1)"/>
+		<input type="radio" name="pecaescolha" id="botaojogador2" style="z-index:1;position:absolute;margin-top:70%;margin-left:25%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeJogador" onclick="setaPecaSelecionada(2)"/>
+		<input type="radio" name="pecaescolha" id="botaojogador3" style="z-index:1;position:absolute;margin-top:70%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeJogador" onclick="setaPecaSelecionada(3)"/>
+		<input type="radio" name="pecaescolha" id="botaojogador4" style="z-index:1;position:absolute;margin-top:70%;margin-left:45%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeJogador" onclick="setaPecaSelecionada(4)"/>
+		<input type="radio" name="pecaescolha" id="botaojogador5" style="z-index:1;position:absolute;margin-top:70%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeJogador" onclick="setaPecaSelecionada(5)"/>
+		<input type="radio" name="pecaescolha" id="botaojogador6" style="z-index:1;position:absolute;margin-top:70%;margin-left:65%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeJogador" onclick="setaPecaSelecionada(6)"/>
+		<input type="radio" name="pecaescolha" id="botaojogador7" style="z-index:1;position:absolute;margin-top:70%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:block;" class="resizeJogador" onclick="setaPecaSelecionada(7)"/>
+		
+		<input type="radio" name="pecaescolha" id="botaojogador8" style="z-index:1;position:absolute;margin-top:70%;margin-left:15%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeJogador" onclick=""/>
+		<input type="radio" name="pecaescolha" id="botaojogador9" style="z-index:1;position:absolute;margin-top:70%;margin-left:25%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeJogador" onclick=""/>
+		<input type="radio" name="pecaescolha" id="botaojogador10" style="z-index:1;position:absolute;margin-top:70%;margin-left:35%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeJogador" onclick=""/>
+		<input type="radio" name="pecaescolha" id="botaojogador11" style="z-index:1;position:absolute;margin-top:70%;margin-left:45%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeJogador" onclick=""/>
+		<input type="radio" name="pecaescolha" id="botaojogador12" style="z-index:1;position:absolute;margin-top:70%;margin-left:55%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeJogador" onclick=""/>
+		<input type="radio" name="pecaescolha" id="botaojogador13" style="z-index:1;position:absolute;margin-top:70%;margin-left:65%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeJogador" onclick=""/>
+		<input type="radio" name="pecaescolha" id="botaojogador14" style="z-index:1;position:absolute;margin-top:70%;margin-left:75%;margin-bottom:10%;margin-right:30%;display:none;" class="resizeJogador" onclick=""/>
 	</div>
 	<div id="botao-comprar">
-		<img style="z-index:1;position:absolute;margin-top:70%;margin-left:85%;margin-bottom:10%;margin-right:30%" src="../img/comprar.png"/>
+		<img style="z-index:1;position:absolute;margin-top:70%;margin-left:85%;margin-bottom:10%;margin-right:30%" src="../img/comprar.png" onclick="comprar()"/>
 	</div>
 </body>
 </html>

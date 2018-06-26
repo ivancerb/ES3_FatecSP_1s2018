@@ -53,26 +53,23 @@ public class Game {
 		if(!isFirstMove) {
 			//only allows to play if the extreme matches - if first move this is not verified
 			if(extremeSide.equals("A")) {
-				if (pieceExtreme != board.getExtremeA()) {
+				if (pieceDeadEnd != board.getExtremeA()) {
 					return false;
 				}
 			}
 			if(extremeSide.equals("B")) {
-				if (pieceExtreme != board.getExtremeB()) { 
+				if (pieceDeadEnd != board.getExtremeB()) { 
 					return false;
 				}
 			}
 		}
 		//remove the piece from the pieces' list
-		if (this.removePiece(playerId, pieceDeadEnd, pieceExtreme)) {
-			this.setLastOneToPlayId(playerId);
-			this.updateExtremes(extremeSide, pieceExtreme, pieceDeadEnd);
-			this.pieceExtreme = pieceExtreme;
-			this.pieceDeadEnd = pieceDeadEnd;
-			return true;
-		}
-		
-		return false;
+		this.removePiece(playerId, pieceDeadEnd, pieceExtreme);
+		this.setLastOneToPlayId(playerId);
+		this.updateExtremes(extremeSide, pieceExtreme, pieceDeadEnd);
+		this.pieceExtreme = pieceExtreme;
+		this.pieceDeadEnd = pieceDeadEnd;
+		return true;
 	}
 	
 	public boolean canPlayBuying(int playerId) {
@@ -224,7 +221,6 @@ public class Game {
 		else if(playerId == player2.getId()) {
 			return this.removePieceFromHashSet(this.board.player2Pieces, piece);
 		}
-		
 		return false;
 	}
 	
